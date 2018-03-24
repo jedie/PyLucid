@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 
 """
-    PyLucid Boot Admin
-    ~~~~~~~~~~~~~~~~~~
+    pylucid bootstrap
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    A interactive shell for booting PyLucid.
+    A interactive shell for booting the 'pylucid' project.
 
     Note:
         - This file is "self contained".
@@ -14,28 +14,35 @@
 
     usage, e.g.:
 
-        $ wget https://raw.githubusercontent.com/jedie/PyLucid/pylucid_v3/pylucid/pylucid_boot.py
-        $ python3 pylucid_boot.py
+        $ wget https://raw.githubusercontent.com/jedie/PyLucid/master/pylucid/boot_pylucid.py
+        $ python3 boot_pylucid.py
 
-        pylucid_boot.py> boot ~/PyLucid_env
+        pylucid_boot> boot ~/pylucid-env
 
-    :created: 08.02.2018 by Jens Diemer, www.jensdiemer.de
-    :copyleft: 2018 by the PyLucid team, see AUTHORS for more details.
+    NOTE:
+        * This file is generated via cookiecutter!
+        * Don't edit it directly!
+
+    :created: 11.03.2018 by Jens Diemer, www.jensdiemer.de
+    :copyleft: 2018 by the bootstrap_env team, see AUTHORS for more details.
     :license: GNU General Public License v3 or later (GPLv3+), see LICENSE for more details.
 """
 
-import sys  # isort:skip
+import cmd
+import logging
+import os
+import pathlib
+import subprocess
+import sys
+import time
+import traceback
+from pathlib import Path
+
 if sys.version_info < (3, 5):  # isort:skip
     print("\nERROR: Python 3.5 or greater is required!")
     print("(Current Python Verison is %s)\n" % sys.version.split(" ",1)[0])
     sys.exit(101)
 
-import cmd
-import logging
-import os
-import subprocess
-import traceback
-from pathlib import Path
 
 try:
     import venv
@@ -50,22 +57,50 @@ except ImportError as err:
     print("\nERROR: 'ensurepip' not available: %s (Maybe 'python3-venv' package not installed?!?)" % err)
 
 
-__version__ = "0.4.0"
+__version__ = "1.0.0rc14"
 
 
 log = logging.getLogger(__name__)
+
+
+PACKAGE_NAME="pylucid" # PyPi package name
+
+# admin shell console script entry point name ('setup.py
+# (used to call 'upgrade_requirements' after virtualenv creation)
+# It's the 'scripts' keyword argument in project 'setup.py'
+# see:
+# https://python-packaging.readthedocs.io/en/latest/command-line-scripts.html#the-scripts-keyword-argument
+#
+ADMIN_FILE_NAME="pylucid_admin.py" # File under .../<project>/foobar_admin.py
 
 # Note:
 #   on 'master' branch: '--pre' flag must not be set: So the last release on PyPi will be installed.
 #   on 'develop' branch: set the '--pre' flag and publish 'preview' versions on PyPi.
 #
-DEVELOPER_INSTALL=["-e", "git+https://github.com/jedie/PyLucid.git@master#egg=pylucid"]
+DEVELOPER_INSTALL=["-e", "git+https://github.com/jedie/PyLucid.git@master#egg=%s" % PACKAGE_NAME]
 NORMAL_INSTALL=[
-    # "--pre", # https://pip.pypa.io/en/stable/reference/pip_install/#pre-release-versions
-    "pylucid"
+    PACKAGE_NAME
 ]
 
-SELF_FILE_PATH=Path(__file__)  # .../pylucid/pylucid_boot.py
+SELF_FILE_PATH=Path(__file__).resolve()               # .../src/bootstrap-env/bootstrap_env/boot_bootstrap_env.py
+ROOT_PATH=Path(SELF_FILE_PATH, "..", "..").resolve()  # .../src/bootstrap_env/
+OWN_FILE_NAME=SELF_FILE_PATH.name                     # boot_bootstrap_env.py
+
+# print("SELF_FILE_PATH: %s" % SELF_FILE_PATH)
+# print("ROOT_PATH: %s" % ROOT_PATH)
+# print("OWN_FILE_NAME: %s" % OWN_FILE_NAME)
+
+
+def in_virtualenv():
+    # Maybe this is not the best way?!?
+    return "VIRTUAL_ENV" in os.environ
+
+
+if in_virtualenv():
+    print("Activated virtualenv detected: %r (%s)" % (sys.prefix, sys.executable))
+else:
+    print("We are not in a virtualenv, ok.")
+
 
 SUBPROCESS_TIMEOUT=60  # default timeout for subprocess calls
 
@@ -169,6 +204,7 @@ colorizer = Colorizer()
 # colorizer.demo()
 
 
+
 class VerboseSubprocess:
     """
     Verbose Subprocess
@@ -180,20 +216,31 @@ class VerboseSubprocess:
         :param timeout: pass to subprocess.Popen()
         :param kwargs: pass to subprocess.Popen()
         """
+
+        # subprocess doesn't accept Path() objects
+        for arg in popenargs:
+            assert not isinstance(arg, pathlib.Path), "Arg %r not accepted!" % arg
+        for key, value in kwargs.items():
+            assert not isinstance(value, pathlib.Path), "Keyword argument %r: %r not accepted!" % (key, value)
+
         self.popenargs = popenargs
         self.kwargs = kwargs
 
         self.kwargs["timeout"] = timeout
         self.kwargs["universal_newlines"] = universal_newlines
         self.kwargs["stderr"] = stderr
+        self.kwargs["bufsize"] = -1
 
         self.args_str = " ".join([str(x) for x in self.popenargs])
 
+        env = self.kwargs.get("env", os.environ.copy())
+        env["PYTHONUNBUFFERED"]="1" # If a python script called ;)
+
         self.env_updates = env_updates
         if self.env_updates is not None:
-            env=os.environ.copy()
             env.update(env_updates)
-            self.kwargs["env"] = env
+
+        self.kwargs["env"] = env
 
     def print_call_info(self):
         print("")
@@ -266,6 +313,42 @@ class VerboseSubprocess:
                 sys.exit(err.returncode)
             raise
 
+    def iter_output(self, check=True):
+        """
+        A subprocess with tee ;)
+        """
+        self.print_call_info()
+
+        orig_timeout = self.kwargs.pop("timeout")
+
+        self.kwargs.update({
+            "stdout":subprocess.PIPE,
+            "stderr":subprocess.STDOUT,
+        })
+
+        proc=subprocess.Popen(self.popenargs, **self.kwargs)
+
+        end_time = time.time() + orig_timeout
+        for line in iter(proc.stdout.readline, ''):
+            yield line
+
+            if time.time()>end_time:
+                raise subprocess.TimeoutExpired(self.popenargs, orig_timeout)
+
+        if check and proc.returncode:
+            sys.exit(proc.returncode)
+
+    def print_output(self, check=True):
+        for line in self.iter_output(check=check):
+            print(line, flush=True)
+
+
+def get_pip_file_name():
+    if sys.platform == 'win32':
+        return "pip3.exe"
+    else:
+        return "pip3"
+
 
 def display_errors(func):
     def wrapped(*args, **kwargs):
@@ -285,7 +368,6 @@ class Cmd2(cmd.Cmd):
         - methods can be called directly from commandline: e.g.: ./foobar.py --help
         - Display
     """
-    own_filename = SELF_FILE_PATH.name  # Path(__file__).name ;)
     version = __version__
 
     command_alias = { # used in self.precmd()
@@ -300,11 +382,16 @@ class Cmd2(cmd.Cmd):
     complete_hint="\nUse <{key}> to command completion.\n"
     missing_complete="\n(Sorry, no command completion available.)\n" # if 'readline' not available
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, self_filename=None, **kwargs):
         super().__init__(*args, **kwargs)
 
+        if self_filename is None:
+            self.self_filename = SELF_FILE_PATH.name  # Path(__file__).name ;)
+        else:
+            self.self_filename = self_filename
+
         intro_line = '{filename} shell v{version}'.format(
-            filename=self.own_filename,
+            filename=self.self_filename,
             version=self.version
         )
         intro_line = colorizer.colorize(intro_line, foreground="blue", background="black", opts=("bold",))
@@ -314,7 +401,7 @@ class Cmd2(cmd.Cmd):
             'Type help or ? to list commands.\n'
         ).format(intro_line=intro_line)
 
-        self.prompt = colorizer.colorize(self.own_filename, foreground="cyan")
+        self.prompt = colorizer.colorize(self.self_filename, foreground="cyan")
         self.prompt += colorizer.colorize("> ", opts=("bold",))
 
         self.doc_header = "Available commands (type help <topic>):\n"
@@ -322,10 +409,10 @@ class Cmd2(cmd.Cmd):
             "\nHint: All commands can be called directly from commandline.\n"
             "e.g.: $ ./{filename} help\n"
         ).format(
-            filename=self.own_filename,
+            filename=self.self_filename,
         )
 
-        # e.g.: $ pylucid_admin.py boot /tmp/PyLucid-env -> run self.do_boot("/tmp/PyLucid-env") on startup
+        # e.g.: $ bootstrap_env_admin.py boot /tmp/bootstrap_env-env -> run self.do_boot("/tmp/bootstrap_env-env") on startup
         args = sys.argv[1:]
         if args:
             self.cmdqueue = [" ".join(args)]
@@ -452,12 +539,22 @@ class Cmd2(cmd.Cmd):
         return stop
 
 
-class PyLucidEnvBuilder(venv.EnvBuilder):
+class EnvBuilder(venv.EnvBuilder):
     verbose = True
 
     def __init__(self, requirements):
         super().__init__(with_pip=True)
         self.requirements = requirements
+
+    def create(self, env_dir):
+        print(" * Create new pylucid virtualenv here: %r" % env_dir)
+
+        if "VIRTUAL_ENV" in os.environ:
+            print("\nERROR: Don't call me in a activated virtualenv!")
+            print("You are in VIRTUAL_ENV: %r" % os.environ["VIRTUAL_ENV"])
+            return
+
+        return super().create(env_dir)
 
     def ensure_directories(self, env_dir):
         print(" * Create the directories for the environment.")
@@ -489,7 +586,7 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
         """
         print(" * post-setup modification")
 
-        def call_new_python(*args, **kwargs):
+        def call_new_python(*args, check=True, **kwargs):
             """
             Do the same as bin/activate so that <args> runs in a "activated" virtualenv.
             """
@@ -500,36 +597,51 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
                 }
             })
             VerboseSubprocess(*args, **kwargs).verbose_call(
-                check=True # sys.exit(return_code) if return_code != 0
+                check=check # sys.exit(return_code) if return_code != 0
             )
 
-        call_new_python("pip", "install", "--upgrade", "pip")
+        pip_bin=Path(context.bin_path, get_pip_file_name()) # e.g.: .../bin/pip3
+        assert pip_bin.is_file(), "Pip not found here: %s" % pip_bin
 
-        # Install PyLucid
+        # Upgrade pip first (e.g.: running python 3.5)
+        if sys.platform == 'win32':
+            # Note: On windows it will crash with a PermissionError: [WinError 32]
+            # because pip can't replace himself while running ;)
+            # Work-a-round is "python -m pip install --upgrade pip"
+            # see also: https://github.com/pypa/pip/issues/3804
+            call_new_python(
+                context.env_exe, "-m", "pip", "install", "--upgrade", "pip",
+                check=False # Don't exit on errors
+            )
+        else:
+            call_new_python(
+                str(pip_bin), "install", "--upgrade", "pip",
+                check=False # Don't exit on errors
+            )
+
+        # Install bootstrap_env
         #   in normal mode as package from PyPi
         #   in dev. mode as editable from github
         call_new_python(
-            "pip", "install",
+            str(pip_bin), "install",
             # "--verbose",
             *self.requirements
         )
 
-        # Check if ".../bin/pylucid_admin" exists
-        pylucid_admin_path = Path(context.bin_path, "pylucid_admin")
-        if not pylucid_admin_path.is_file():
-            print("ERROR: pylucid_admin not found here: '%s'" % pylucid_admin_path)
+        # Check if ".../bin/bootstrap_env_admin.py" exists
+        bootstrap_env_admin_path = Path(context.bin_path, ADMIN_FILE_NAME)
+        if not bootstrap_env_admin_path.is_file():
+            print("ERROR: admin script not found here: '%s'" % bootstrap_env_admin_path)
             VerboseSubprocess("ls", "-la", str(context.bin_path)).verbose_call()
             sys.exit(-1)
 
-        # Install all requirements by call 'pylucid_admin update_env' from installed PyLucid
-        call_new_python("pylucid_admin", "update_env", timeout=240)  # extended timeout for slow Travis ;)
+        # Install all requirements
+        call_new_python(context.env_exe, str(bootstrap_env_admin_path), "update_env", timeout=240)  # extended timeout for slow Travis ;)
 
 
-class PyLucidBootShell(Cmd2):
 
-    #_________________________________________________________________________
-    # Normal user commands:
 
+class BootBootstrapEnvShell(Cmd2):
     def _resolve_path(self, path):
         return Path(path).expanduser().resolve()
 
@@ -555,16 +667,14 @@ class PyLucidBootShell(Cmd2):
 
     def _boot(self, destination, requirements):
         """
-        Create a PyLucid virtualenv and install requirements.
+        Create a pylucid virtualenv and install requirements.
         """
         destination = Path(destination).expanduser()
         if destination.exists():
             self.stdout.write("\nERROR: Path '%s' already exists!\n" % destination)
             sys.exit(1)
 
-        self.stdout.write("Create virtualenv: '%s'...\n\n" % destination)
-
-        builder = PyLucidEnvBuilder(requirements)
+        builder = EnvBuilder(requirements)
         builder.create(str(destination))
 
         self.stdout.write("\n")
@@ -577,12 +687,12 @@ class PyLucidBootShell(Cmd2):
 
     def do_boot(self, destination):
         """
-        Bootstrap PyLucid virtualenv in "normal" mode.
+        Bootstrap pylucid virtualenv in "normal" mode.
 
         usage:
-            > boot [path]
+            pylucid_boot> boot [path]
 
-        Create a PyLucid virtualenv in the given [path].
+        Create a pylucid virtualenv in the given [path].
         Install packages via PyPi and read-only sources from github.
 
         The destination path must not exist yet!
@@ -594,15 +704,15 @@ class PyLucidBootShell(Cmd2):
 
     def do_boot_developer(self, destination):
         """
-        Bootstrap PyLucid virtualenv in "developer" mode.
+        Bootstrap pylucid virtualenv in "developer" mode.
         All own projects installed as editables via github HTTPS (readonly)
 
         **Should be only used for developing/contributing. All others: Use normal 'boot' ;) **
 
         usage:
-            > boot_developer [path]
+            pylucid_boot> boot_developer [path]
 
-        Create a PyLucid virtualenv in the given [path].
+        Create a pylucid virtualenv in the given [path].
         Install packages via PyPi and read-only sources from github.
 
         The destination path must not exist yet!
@@ -614,7 +724,7 @@ class PyLucidBootShell(Cmd2):
 
 
 def main():
-    PyLucidBootShell().cmdloop()
+    BootBootstrapEnvShell().cmdloop()
 
 
 if __name__ == '__main__':
