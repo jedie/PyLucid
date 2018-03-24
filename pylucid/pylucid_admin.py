@@ -1,22 +1,28 @@
 
 import os  # isort:skip
-import re
-
-assert "VIRTUAL_ENV" in os.environ, "ERROR: Call me only in a activated virtualenv!"  # isort:skip
-
-
 import logging
+import re
 import subprocess
 import sys
 import time
 from pathlib import Path
+from pprint import pprint
 
+import bootstrap_env
 # pylucid.pylucid_boot.in_virtualenv
+from bootstrap_env.utils.cookiecutter_utils import verbose_cookiecutter
 from pylucid_installer.pylucid_installer import create_instance
 
 # PyLucid
+import pylucid
 from pylucid.pylucid_boot import Cmd2, VerboseSubprocess
 from pylucid.version import __version__
+
+assert "VIRTUAL_ENV" in os.environ, "ERROR: Call me only in a activated virtualenv!"  # isort:skip
+
+
+
+
 
 
 log = logging.getLogger(__name__)
@@ -65,15 +71,15 @@ MANAGE_COMMANDS=( # TODO: Create list dynamicly
     "collectstatic",
 )
 
-SELF_FILEPATH=Path(__file__).resolve()                               # .../src/pylucid/pylucid/pylucid_admin.py
-BOOT_FILEPATH=Path(SELF_FILEPATH, "..", "pylucid_boot.py").resolve() # .../src/pylucid/pylucid/pylucid_boot.py
-ROOT_PATH=Path(SELF_FILEPATH, "..", "..").resolve()                  # .../src/pylucid/
-OWN_FILENAME=SELF_FILEPATH.name                                      # pylucid_admin.py
+SELF_FILE_PATH=Path(__file__).resolve()                               # .../src/pylucid/pylucid/pylucid_admin.py
+BOOT_FILE_PATH=Path(SELF_FILE_PATH, "..", "pylucid_boot.py").resolve() # .../src/pylucid/pylucid/pylucid_boot.py
+ROOT_PATH=Path(SELF_FILE_PATH, "..", "..").resolve()                  # .../src/pylucid/
+OWN_FILE_NAME=SELF_FILE_PATH.name                                      # pylucid_admin.py
 
-# print("SELF_FILEPATH: %s" % SELF_FILEPATH)
-# print("BOOT_FILEPATH: %s" % BOOT_FILEPATH)
+# print("SELF_FILE_PATH: %s" % SELF_FILE_PATH)
+# print("BOOT_FILE_PATH: %s" % BOOT_FILE_PATH)
 # print("ROOT_PATH: %s" % ROOT_PATH)
-# print("OWN_FILENAME: %s" % OWN_FILENAME)
+# print("OWN_FILE_NAME: %s" % OWN_FILE_NAME)
 
 
 def in_virtualenv():
@@ -150,7 +156,7 @@ class Requirements:
 
 
 class PyLucidShell(Cmd2):
-    own_filename = OWN_FILENAME
+    OWN_FILE_NAME = OWN_FILE_NAME
     version = __version__
 
     def do_create_page_instance(self, arg):
@@ -338,13 +344,13 @@ class PyLucidShell(Cmd2):
                 cwd=ROOT_PATH
             ).verbose_call(check=False)
 
-        self.stdout.write("Please restart %s\n" % self.own_filename)
+        self.stdout.write("Please restart %s\n" % self.OWN_FILE_NAME)
         sys.exit(0)
 
     #_________________________________________________________________________
     # Developer commands:
 
-    def do_upgrade_requirements(self, arg):
+    def do_upgrade_requirements(self, arg, timeout=(3*60)):
         """
         1. Convert via 'pip-compile' *.in requirements files to *.txt
         2. Append 'piprot' informations to *.txt requirements.
@@ -352,7 +358,7 @@ class PyLucidShell(Cmd2):
         Direct start with:
             $ pylucid_admin upgrade_requirements
         """
-        assert BOOT_FILEPATH.is_file(), "Bootfile not found here: %s" % BOOT_FILEPATH
+        assert BOOT_FILE_PATH.is_file(), "Bootfile not found here: %s" % BOOT_FILE_PATH
 
         req = Requirements()
         requirements_path = req.get_requirement_path()
@@ -372,7 +378,8 @@ class PyLucidShell(Cmd2):
 
             return_code = VerboseSubprocess(
                 "pip-compile", "--verbose", "--upgrade", "-o", requirement_out, requirement_in,
-                cwd=requirements_path
+                cwd=requirements_path,
+                timeout=timeout
             ).verbose_call(check=True)
 
             if not requirement_in.startswith("test_"):
@@ -449,6 +456,56 @@ class PyLucidShell(Cmd2):
 
             VerboseSubprocess("git", "remote", "set-url", name, new_url, cwd=str(p)).verbose_call(check=False)
             VerboseSubprocess("git", "remote", "-v", cwd=str(p)).verbose_call(check=False)
+
+    def do_update_own_boot_file(self, arg):
+        """
+        Update 'bootstrap_env/boot_bootstrap_env.py' via cookiecutter
+
+        direct call, e.g.:
+        $ pylucid_admin update_own_boot_file
+        """
+        from pylucid import __version__
+        from packaging.version import parse
+
+        # https://packaging.pypa.io/en/latest/version/
+        parsed_pylucid_version = parse(__version__)
+
+        if parsed_pylucid_version.is_prerelease:
+            use_pre_release = "y"
+        else:
+            use_pre_release = "n"
+
+        bootstrap_env_path = Path(bootstrap_env.__file__).parent
+        assert bootstrap_env_path.is_dir()
+
+        repro_path = Path(bootstrap_env_path, "boot_source")
+
+        output_dir = Path(pylucid.__file__)     # .../PyLucid-env/src/pylucid/pylucid/__init__.py
+        output_dir = output_dir.parent          # .../PyLucid-env/src/pylucid/pylucid/
+        output_dir = output_dir.parent          # .../PyLucid-env/src/pylucid/
+
+        from cookiecutter.log import configure_logger
+        configure_logger(stream_level='DEBUG')
+
+        from bootstrap_env.version import __version__ as bootstrap_env_version
+
+        result = verbose_cookiecutter(
+            template=str(repro_path),
+            no_input=True,
+            overwrite_if_exists=True,
+            output_dir=str(output_dir),
+            extra_context={
+                # see: bootstrap_env/boot_source/cookiecutter.json
+                "_version": bootstrap_env_version,
+                "project_name": "pylucid",
+                "package_name": "pylucid",
+                "bootstrap_filename": "pylucid_boot",
+                "editable_url": "git+https://github.com/jedie/PyLucid.git@master",
+                "raw_url": "https://raw.githubusercontent.com/jedie/PyLucid/master",
+                "use_pre_release": use_pre_release,
+            },
+        )
+        print("\nbootstrap file created here: %s" % result)
 
 
 def main():
