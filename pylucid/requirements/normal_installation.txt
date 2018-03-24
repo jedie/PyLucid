@@ -13,7 +13,7 @@ cmsplugin-pygments==0.8.3
 django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
 django-appdata==0.2.0     # via aldryn-apphooks-config
 django-classy-tags==0.8.0  # via django-cms, django-sekizai
-django-cms-tools==0.6.4.1
+django-cms-tools==0.6.5
 django-cms==3.4.5
 django-compressor==2.2
 django-debug-toolbar-django-info==0.3.0
@@ -28,11 +28,11 @@ django-polymorphic==1.3   # via django-filer
 django-processinfo==0.8.0
 django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin, djangocms-history
 django-sortedm2m==1.5.0   # via djangocms-blog
-django-taggit-autosuggest==0.3.2  # via djangocms-blog
+django-taggit-autosuggest==0.3.3  # via djangocms-blog
 django-taggit-templatetags==0.2.5  # via djangocms-blog
 django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
-django-tools==0.39.1
+django-tools==0.39.3
 django-treebeard==4.2.1   # via django-cms
 django==1.11.11
 djangocms-admin-style==1.2.7  # via django-cms
@@ -44,7 +44,7 @@ djangocms-htmlsitemap==0.3.2
 docutils==0.14
 easy-thumbnails==2.4.2    # via cmsplugin-filer, django-filer, djangocms-blog
 html5lib==1.0.1           # via textile
-lxml==4.2.0               # via django-tools, djangocms-blog
+lxml==4.2.1               # via django-tools, djangocms-blog
 markdown==2.6.11
 pillow==5.0.0
 pygments==2.2.0

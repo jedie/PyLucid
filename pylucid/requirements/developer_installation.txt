@@ -38,7 +38,7 @@ django-parler==1.9.2      # via djangocms-blog
 django-polymorphic==1.3   # via django-filer
 django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin, djangocms-history
 django-sortedm2m==1.5.0   # via djangocms-blog
-django-taggit-autosuggest==0.3.2  # via djangocms-blog
+django-taggit-autosuggest==0.3.3  # via djangocms-blog
 django-taggit-templatetags==0.2.5  # via djangocms-blog
 django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
@@ -56,25 +56,26 @@ easy-thumbnails==2.4.2    # via cmsplugin-filer, django-filer, djangocms-blog
 first==2.0.1              # via pip-tools
 html5lib==1.0.1           # via textile
 idna==2.6                 # via requests
-lxml==4.2.0               # via djangocms-blog
+lxml==4.2.1               # via djangocms-blog
 markdown==2.6.11
+more-itertools==4.1.0     # via pytest
 pillow==5.0.0
 pip-tools==1.11.0
 piprot==0.9.7
 pkginfo==1.4.2            # via twine
 pluggy==0.6.0             # via pytest
-py==1.5.2                 # via pytest
+py==1.5.3                 # via pytest
 pygments==2.2.0
 pytest-cov==2.5.1
 pytest-django==3.1.2
-pytest==3.4.2
+pytest==3.5.0
 pytz==2018.3              # via django, djangocms-blog
 rcssmin==1.0.6            # via django-compressor
 requests-futures==0.9.7   # via piprot
 requests-toolbelt==0.8.0  # via twine
 requests==2.18.4          # via coveralls, piprot, requests-futures, requests-toolbelt, twine
 rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via django-extensions, html5lib, pip-tools, piprot, pytest, textile
+six==1.11.0               # via django-extensions, html5lib, more-itertools, pip-tools, piprot, pytest, textile
 sqlparse==0.2.4           # via django-debug-toolbar
 textile==3.0.0
 tqdm==4.19.8              # via twine
