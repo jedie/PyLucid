@@ -34,7 +34,7 @@ docutils
 
 # https://github.com/jedie/bootstrap_env
 # https://pypi.org/project/bootstrap_env/
--e git+https://github.com/jedie/bootstrap_env.git#egg=bootstrap_env
+-e git+https://github.com/jedie/bootstrap_env.git#egg=bootstrap-env
 
 # https://github.com/jedie/python-creole/
 # https://pypi.org/project/python-creole

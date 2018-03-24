@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file developer_installation.txt developer_installation.in
 #
--e git+https://github.com/jedie/bootstrap_env.git#egg=bootstrap_env
+-e git+https://github.com/jedie/bootstrap_env.git#egg=bootstrap-env
 -e git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
 -e git+https://github.com/jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
 -e git+https://github.com/jedie/django-cms-tools.git@master#egg=django-cms-tools
