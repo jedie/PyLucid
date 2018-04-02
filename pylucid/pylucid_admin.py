@@ -156,8 +156,10 @@ class Requirements:
 
 
 class PyLucidShell(Cmd2):
-    OWN_FILE_NAME = OWN_FILE_NAME
     version = __version__
+
+    def __init__(self):
+        super().__init__(self_filename=OWN_FILE_NAME)
 
     def do_create_page_instance(self, arg):
         """
