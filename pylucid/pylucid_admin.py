@@ -36,8 +36,6 @@ VERSION_PREFIXES = (
 
 # Used in PyLucidShell.do_update_env()
 PYLUCID_NORMAL_REQ=[
-    # TODO: Remove "--pre" after v3 release
-    "--pre", # https://pip.pypa.io/en/stable/reference/pip_install/#pre-release-versions
     "pylucid>=%s" % __version__
 ]
 
