@@ -64,10 +64,14 @@ MANAGE_COMMANDS=( # TODO: Create list dynamicly
     "collectstatic",
 )
 
-SELF_FILE_PATH=Path(__file__).resolve()                               # .../src/pylucid/pylucid/pylucid_admin.py
-BOOT_FILE_PATH=Path(SELF_FILE_PATH, "..", "pylucid_boot.py").resolve() # .../src/pylucid/pylucid/pylucid_boot.py
-ROOT_PATH=Path(SELF_FILE_PATH, "..", "..").resolve()                  # .../src/pylucid/
-OWN_FILE_NAME=SELF_FILE_PATH.name                                      # pylucid_admin.py
+SELF_FILE_PATH=Path(pylucid.__file__).resolve()                 # .../src/pylucid/pylucid/__init__.py
+ROOT_PATH=Path(SELF_FILE_PATH.parent).resolve()                 # .../src/pylucid/pylucid/
+BOOT_FILE_PATH=Path(ROOT_PATH, "pylucid_boot.py").resolve()     # .../src/pylucid/pylucid/pylucid_boot.py
+OWN_FILE_NAME=Path(__file__).name                               # pylucid_admin.py
+
+assert SELF_FILE_PATH.is_file()
+assert ROOT_PATH.is_dir()
+assert BOOT_FILE_PATH.is_file()
 
 # print("SELF_FILE_PATH: %s" % SELF_FILE_PATH)
 # print("BOOT_FILE_PATH: %s" % BOOT_FILE_PATH)
@@ -113,7 +117,7 @@ class Requirements:
         """
         :return: Path(.../pylucid/requirements/)
         """
-        requirement_path = Path(ROOT_PATH, "pylucid", "requirements").resolve()
+        requirement_path = Path(ROOT_PATH, "requirements").resolve()
         if not requirement_path.is_dir():
             raise RuntimeError("Requirements directory not found here: %s" % requirement_path)
         return requirement_path
@@ -131,6 +135,10 @@ class Requirements:
 
         return requirement_file_path
 
+
+# req = Requirements()
+# print("requirement_path.......:", req.get_requirement_path())
+# print("requirement_file_path..:", req.get_requirement_file_path())
 
 
 class PyLucidShell(Cmd2):
@@ -239,7 +247,7 @@ class PyLucidShell(Cmd2):
         except ImportError as err:
             print("ERROR: Can't import pytest: %s (pytest not installed, in normal installation!)")
         else:
-            root_path = str(ROOT_PATH)
+            root_path = str(ROOT_PATH.parent)
             print("chdir %r" % root_path)
             os.chdir(root_path)
 
