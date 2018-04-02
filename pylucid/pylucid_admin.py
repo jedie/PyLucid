@@ -473,8 +473,10 @@ class PyLucidShell(Cmd2):
         parsed_pylucid_version = parse(__version__)
 
         if parsed_pylucid_version.is_prerelease:
+            print("PyLucid v%s is pre release" % parsed_pylucid_version)
             use_pre_release = "y"
         else:
+            print("PyLucid v%s is not a pre release" % parsed_pylucid_version)
             use_pre_release = "n"
 
         bootstrap_env_path = Path(bootstrap_env.__file__).parent
