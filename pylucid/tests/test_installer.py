@@ -17,7 +17,7 @@ from unittest import TestCase
 from django.utils.version import get_main_version
 
 from pylucid_installer.pylucid_installer import create_instance, get_python3_shebang
-from pylucid_tests.test_utils.test_cases import BaseTestCase, PageInstanceTestCase
+from pylucid.tests.test_utils.test_cases import BaseTestCase, PageInstanceTestCase
 
 # https://github.com/jedie/django-tools
 from django_tools.unittest_utils.isolated_filesystem import isolated_filesystem
