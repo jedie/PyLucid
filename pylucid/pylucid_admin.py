@@ -1,15 +1,21 @@
 
-import os  # isort:skip
+"""
+    PyLucid Admin
+    ~~~~~~~~~~~~~
+
+    :created: 2018 by Jens Diemer
+    :copyleft: 2018 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
 import logging
+import os
 import re
 import subprocess
 import sys
 import time
 from pathlib import Path
-from pprint import pprint
 
-import bootstrap_env
-from bootstrap_env.utils.cookiecutter_utils import verbose_cookiecutter
 from pylucid_installer.pylucid_installer import create_instance
 
 # PyLucid
@@ -453,7 +459,8 @@ class PyLucidShell(Cmd2):
         direct call, e.g.:
         $ pylucid_admin update_own_boot_file
         """
-        from pylucid import __version__
+        import bootstrap_env
+        from bootstrap_env.utils.cookiecutter_utils import verbose_cookiecutter
         from packaging.version import parse
 
         # https://packaging.pypa.io/en/latest/version/
