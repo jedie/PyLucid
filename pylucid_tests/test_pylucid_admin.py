@@ -42,6 +42,11 @@ class TestPyLucidAdmin(unittest.TestCase):
         self.assertIn("pylucid_admin.py shell", output)
         self.assertIn("*** Unknown command: 'foo bar is unknown ;)' ***", output)
 
+    def test_requirement_path(self):
+        req = Requirements()
+        self.assertTrue(req.get_requirement_path().is_dir())
+        self.assertTrue(req.get_requirement_file_path().is_file())
+
     @unittest.skipIf(Requirements().normal_mode, "Only available in 'developer' mode.")
     def test_change_editable_address(self):
         """
