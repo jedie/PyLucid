@@ -93,21 +93,6 @@ else:
     print("We are not in a virtualenv, ok.")
 
 
-def iter_subprocess_output(*popenargs, **kwargs):
-    """
-    A subprocess with tee ;)
-    """
-    print("Call: %s" % " ".join(popenargs))
-
-    env = dict(os.environ)
-    env["PYTHONUNBUFFERED"]="1" # If a python script called ;)
-
-    proc=subprocess.Popen(popenargs,
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        bufsize=1, env=env, universal_newlines=True,
-        **kwargs
-    )
-    return iter(proc.stdout.readline,'')
 
 
 class Requirements:
@@ -397,8 +382,9 @@ class PyLucidShell(Cmd2):
             output = [
                 "\n#\n# list of out of date packages made with piprot:\n#\n"
             ]
-            for line in iter_subprocess_output("piprot", "--outdated", requirement_out, cwd=requirements_path):
-                print(line, flush=True)
+            sp=VerboseSubprocess("piprot", "--outdated", requirement_out, cwd=str(requirements_path))
+            for line in sp.iter_output():
+                print(line, end="", flush=True)
                 output.append("# %s" % line)
 
             self.stdout.write("\nUpdate file %r\n" % requirement_out)
