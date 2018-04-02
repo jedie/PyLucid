@@ -378,7 +378,7 @@ class PyLucidShell(Cmd2):
 
             return_code = VerboseSubprocess(
                 "pip-compile", "--verbose", "--upgrade", "-o", requirement_out, requirement_in,
-                cwd=requirements_path,
+                cwd=str(requirements_path),
                 timeout=timeout
             ).verbose_call(check=True)
 
