@@ -35,6 +35,7 @@ branches:
 before_install:
   - ls /opt/python/
   - /opt/python/3.6/bin/python --version
+  - unset VIRTUAL_ENV
 
 install:
   - echo $BOOT_MODE
