@@ -9,7 +9,6 @@ from pathlib import Path
 from pprint import pprint
 
 import bootstrap_env
-# pylucid.pylucid_boot.in_virtualenv
 from bootstrap_env.utils.cookiecutter_utils import verbose_cookiecutter
 from pylucid_installer.pylucid_installer import create_instance
 
@@ -19,10 +18,6 @@ from pylucid.pylucid_boot import Cmd2, VerboseSubprocess
 from pylucid.version import __version__
 
 assert "VIRTUAL_ENV" in os.environ, "ERROR: Call me only in a activated virtualenv!"  # isort:skip
-
-
-
-
 
 
 log = logging.getLogger(__name__)
