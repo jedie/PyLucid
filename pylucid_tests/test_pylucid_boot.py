@@ -34,10 +34,10 @@ class TestPyLucidBoot(unittest.TestCase):
         self.assertIn("Available commands (type help <topic>):", output)
 
         self.assertIn("boot", output)
-        self.assertIn('Bootstrap PyLucid virtualenv in "normal" mode.', output)
+        self.assertIn('Bootstrap pylucid virtualenv in "normal" mode.', output)
 
         self.assertIn("boot_developer", output)
-        self.assertIn('Bootstrap PyLucid virtualenv in "developer" mode.', output)
+        self.assertIn('Bootstrap pylucid virtualenv in "developer" mode.', output)
 
         # If DocString is missing in do_<name>():
         self.assertNotIn("Undocumented", output)
