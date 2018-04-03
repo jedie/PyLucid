@@ -14,7 +14,7 @@
 #   * Set pip '--pre' flag in pylucid_boot.NORMAL_INSTALL
 #   * push not pre-releases on 'master' branch
 #
-__version__ = "3.1.2.dev1"
+__version__ = "3.1.2"
 
 
 # Just the first two parts of the version

@@ -231,7 +231,8 @@ Older changes are here: https://www.pylucid.org/de/blog/tag/backward-incompatibl
 
 == Release History
 
-* [[https://github.com/jedie/PyLucid/compare/v3.1.1...master|compare v3.1.1...master]] **dev**
+* [[https://github.com/jedie/PyLucid/compare/v3.1.2...master|compare v3.1.2...master]] **dev**
+* [[https://github.com/jedie/PyLucid/compare/v3.1.1...v3.1.2|03.04.2018 - v3.1.2]]:
 ** Update requirements, e.g.: Django v1.11.12, Django-CMS v3.4.6, Django-CMS-Blog v0.39.3
 ** Update bootstrap file (via 'update_own_boot_file' in dev. mode)
 * [[https://github.com/jedie/PyLucid/compare/v3.1.0...v3.1.1|09.03.2018 - v3.1.1]]:
