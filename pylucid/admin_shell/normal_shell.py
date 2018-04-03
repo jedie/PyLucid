@@ -240,12 +240,12 @@ class PyLucidNormalShell(Cmd2):
             # ... git pull pylucid sources
             return_code = VerboseSubprocess(
                 "git", "pull", "origin",
-                cwd=self.package_path
+                cwd=str(self.package_path)
             ).verbose_call(check=False)
 
             return_code = VerboseSubprocess(
                 pip3_path, "install", "--editable", ".",
-                cwd=self.package_path
+                cwd=str(self.package_path)
             ).verbose_call(check=False)
 
         requirement_file_path = str(self.requirements.get_requirement_file_path())
@@ -264,13 +264,13 @@ class PyLucidNormalShell(Cmd2):
             # Run pip-sync only in developer mode
             return_code = VerboseSubprocess(
                 "pip-sync", requirement_file_path,
-                cwd=self.package_path
+                cwd=str(self.package_path)
             ).verbose_call(check=False)
 
             # 'reinstall' pylucid editable, because it's not in 'requirement_file_path':
             return_code = VerboseSubprocess(
                 pip3_path, "install", "--editable", ".",
-                cwd=self.package_path
+                cwd=str(self.package_path)
             ).verbose_call(check=False)
 
         self.stdout.write("Please restart %s\n" % self.self_filename)
