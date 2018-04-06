@@ -111,7 +111,7 @@ class PyLucidDeveloperShell(PyLucidNormalShell):
                 print("Skip.")
                 continue
 
-            (name, url) = re.findall("(\w+?)\s+([^\s]*?)\s+", output)[0]
+            (name, url) = re.findall(r"(\w+?)\s+([^\s]*?)\s+", output)[0]
             print("Change %r url: %r" % (name, url))
 
             new_url=url.replace("https://github.com/", "git@github.com:")
