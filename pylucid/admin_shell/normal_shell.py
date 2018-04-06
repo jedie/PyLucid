@@ -123,7 +123,7 @@ class PyLucidNormalShell(Cmd2):
         create_instance(dest=destination, name=name, remove=False, exist_ok=False)
 
     def test_project_manage(self, *args, timeout=1000, check=False):
-        cwd = Path(self.package_path, "pylucid_page_instance")
+        cwd = Path(self.package_path.parent, "pylucid_page_instance") # e.g.: PyLucid-env/src/pylucid/pylucid_page_instance
         assert cwd.is_dir(), "ERROR: Path not exists: %r" % cwd
 
         args=["./manage.py"] + list(args)
@@ -131,7 +131,7 @@ class PyLucidNormalShell(Cmd2):
         manage_path = Path(cwd, args[0])
         assert manage_path.is_file(), "ERROR: File not found: '%s'" % manage_path
 
-        return VerboseSubprocess(*args, cwd=cwd, timeout=timeout).verbose_call(check=check)
+        return VerboseSubprocess(*args, cwd=str(cwd), timeout=timeout).verbose_call(check=check)
 
     def complete_test_project_manage(self, text, line, begidx, endidx):
         return self._complete_list(MANAGE_COMMANDS, text, line, begidx, endidx)
