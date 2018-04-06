@@ -13,12 +13,15 @@
     For the full list of settings and their values, see:
         https://docs.djangoproject.com/en/1.11/ref/settings/
 """
+from pathlib import Path
 
 from django.utils.translation import ugettext_lazy as _
 
-# Load the PyLucid base settings
-from pylucid.base_settings import *
+# https://github.com/jedie/django-tools
+from django_tools.settings_utils import InternalIps
 
+# PyLucid
+from pylucid.base_settings import *
 
 DOC_ROOT = "/path/to/page_instance/" # Point this to web server root directory
 
@@ -106,12 +109,17 @@ ALLOWED_HOSTS = [
 #____________________________________________________________________
 # DEBUG
 
-# *** SECURITY WARNING: don"t run with debug turned on in production!
+# *** SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+
 # https://github.com/jedie/django-tools#internalips---unix-shell-style-wildcards-in-internal_ips
-from django_tools.settings_utils import InternalIps
 INTERNAL_IPS = InternalIps(["127.0.0.1", "::1", "192.168.*.*", "10.0.*.*"])
+
+
+if DEBUG:
+    # Turns on all warnings
+    warnings.simplefilter("always")
 
 
 #____________________________________________________________________
@@ -133,7 +141,3 @@ INTERNAL_IPS = InternalIps(["127.0.0.1", "::1", "192.168.*.*", "10.0.*.*"])
 #     MIDDLEWARE_CLASSES = (
 #         "debug_toolbar.middleware.DebugToolbarMiddleware",
 #     ) + MIDDLEWARE_CLASSES
-
-
-
-

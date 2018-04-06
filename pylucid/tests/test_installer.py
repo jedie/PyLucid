@@ -91,7 +91,6 @@ class ManageTest(PageInstanceTestCase):
         # print(output)
 
         self.assertIn("Type 'manage.py help <subcommand>' for help on a specific subcommand.", output)
-        self.assertNotIn("Warning:", output)
 
     def test_check(self):
         output = self.call_manage_py("check")

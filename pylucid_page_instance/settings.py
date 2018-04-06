@@ -6,7 +6,11 @@
     Here should be only set stuff depend on page instance (e.g.: project path)
 """
 
+from pathlib import Path
+
+# PyLucid
 from pylucid.base_settings import *
+
 
 # For build paths inside the project:
 BASE_DIR = Path(__file__).resolve().parent
@@ -50,3 +54,8 @@ CACHES = {
 # https://django-compressor.readthedocs.io/en/latest/settings/
 # COMPRESS_ENABLED=False
 COMPRESS_ENABLED=True
+
+
+if DEBUG:
+    # Turns on all warnings
+    warnings.simplefilter("always")

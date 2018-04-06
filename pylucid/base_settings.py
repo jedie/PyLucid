@@ -5,21 +5,26 @@
     ~~~~~~~~~~~~~~~~~~~~~
 """
 
-from pathlib import Path
+import logging
+import sys
+import warnings
 
 from django.utils.translation import ugettext_lazy as _
 
+from debug_toolbar.settings import CONFIG_DEFAULTS as DEBUG_TOOLBAR_CONFIG
+from django_processinfo import app_settings as PROCESSINFO
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
+# https://github.com/jedie/django-tools
+from django_tools.settings_utils import FnMatchIps
+from django_tools.unittest_utils.logging_utils import CutPathnameLogRecordFactory, FilterAndLogWarnings
+
+# https://github.com/jedie/django-cms-tools
+from django_cms_tools.plugin_anchor_menu import constants as plugin_anchor_menu_constants
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
 SITE_ID=1
-
-
-from django_tools.settings_utils import FnMatchIps
 
 # Required for the debug toolbar to be displayed:
 INTERNAL_IPS = FnMatchIps(["localhost", "127.0.0.1", "::1", "172.*.*.*", "192.168.*.*", "10.0.*.*"])
@@ -155,7 +160,6 @@ DATABASES = {}
 
 
 # https://docs.djangoproject.com/en/1.11/topics/cache/#database-caching
-import sys
 if sys.argv[0].endswith("test") or "pytest" in sys.argv or "test" in sys.argv:
     print("Use 'LocMemCache' CACHES in tests, because of:")
     print("https://github.com/divio/django-cms/issues/5079")
@@ -266,12 +270,8 @@ MEDIA_URL = '/media/'
 # MEDIA_ROOT =
 
 
-# https://github.com/jedie/django-processinfo
-from django_processinfo import app_settings as PROCESSINFO
 
 
-# https://django-debug-toolbar.readthedocs.io/en/stable/configuration.html#debug-toolbar-config
-from debug_toolbar.settings import CONFIG_DEFAULTS as DEBUG_TOOLBAR_CONFIG
 
 # don't load jquery from ajax.googleapis.com, just use django's version:
 DEBUG_TOOLBAR_CONFIG["JQUERY_URL"] = STATIC_URL + "admin/js/vendor/jquery/jquery.min.js"
@@ -296,7 +296,6 @@ CMS_PERMISSION = False
 # from djangocms_text_ckeditor.cms_plugins import TextPlugin
 CKEDITOR = "TextPlugin"
 
-from django_cms_tools.plugin_anchor_menu import constants as plugin_anchor_menu_constants
 
 CMS_PLACEHOLDER_CONF = {
     None: {
@@ -337,29 +336,18 @@ CMS_MARKDOWN_EXTENSIONS = ()
 
 
 #_____________________________________________________________________________
-# cut 'pathname' in log output
 
-import logging
+# Adds 'cut_path' attribute on log record. So '%(cut_path)s' can be used in log formatter.
+# django_tools.unittest_utils.logging_utils.CutPathnameLogRecordFactory
+logging.setLogRecordFactory(CutPathnameLogRecordFactory(max_length=50))
 
-old_factory = logging.getLogRecordFactory()
+# Filter warnings and pipe them to logging system:
+# django_tools.unittest_utils.logging_utils.FilterAndLogWarnings
+warnings.showwarning = FilterAndLogWarnings()
 
+warnings.simplefilter("always") # Turns on all warnings
 
-def cut_path(pathname, max_length):
-    if len(pathname)<=max_length:
-        return pathname
-    return "...%s" % pathname[-(max_length-3):]
-
-
-def record_factory(*args, **kwargs):
-    record = old_factory(*args, **kwargs)
-    record.cut_path = cut_path(record.pathname, 30)
-    return record
-
-
-logging.setLogRecordFactory(record_factory)
-
-
-# -----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 
 # https://docs.python.org/3/library/logging.html#logging-levels
