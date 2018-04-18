@@ -20,10 +20,10 @@ from pylucid.admin_shell.requirements import Requirements
 
 log = logging.getLogger(__name__)
 
-SELF_FILE_PATH=Path(pylucid.__file__).resolve()                 # .../src/pylucid/pylucid/__init__.py
-PACKAGE_PATH=Path(SELF_FILE_PATH.parent).resolve()                 # .../src/pylucid/pylucid/
-BOOT_FILE_PATH=Path(PACKAGE_PATH, "pylucid_boot.py").resolve()     # .../src/pylucid/pylucid/pylucid_boot.py
-OWN_FILE_NAME=Path(__file__).name                               # pylucid_admin.py
+SELF_FILE_PATH=Path(pylucid.__file__).resolve()                         # .../src/pylucid/pylucid/__init__.py
+PACKAGE_PATH=Path(SELF_FILE_PATH.parent.parent).resolve()               # .../src/pylucid/
+BOOT_FILE_PATH=Path(SELF_FILE_PATH.parent, "pylucid_boot.py").resolve() # .../src/pylucid/pylucid/pylucid_boot.py
+OWN_FILE_NAME=Path(__file__).name                                       # pylucid_admin.py
 
 assert SELF_FILE_PATH.is_file()
 assert PACKAGE_PATH.is_dir()

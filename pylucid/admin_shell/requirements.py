@@ -30,7 +30,7 @@ class Requirements:
         """
         :return: Path(.../pylucid/requirements/)
         """
-        requirement_path = Path(self.package_path, "requirements").resolve()
+        requirement_path = Path(self.package_path, "pylucid", "requirements").resolve()
         if not requirement_path.is_dir():
             raise RuntimeError("Requirements directory not found here: %s" % requirement_path)
         return requirement_path
