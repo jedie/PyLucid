@@ -60,20 +60,24 @@ class PyLucidDeveloperShell(PyLucidNormalShell):
                     if not version_prefix in requirement_out_content:
                         raise RuntimeError("ERROR: %r not found!" % version_prefix)
 
-            self.stdout.write("_"*79 + "\n")
-            output = [
-                "\n#\n# list of out of date packages made with piprot:\n#\n"
-            ]
-            sp=VerboseSubprocess("piprot", "--outdated", requirement_out, cwd=str(requirements_path))
-            for line in sp.iter_output():
-                print(line, end="", flush=True)
-                output.append("# %s" % line)
-
-            self.stdout.write("\nUpdate file %r\n" % requirement_out)
-            filepath = Path(requirements_path, requirement_out).resolve()
-            assert filepath.is_file(), "File not exists: %r" % filepath
-            with open(filepath, "a") as f:
-                f.writelines(output)
+            #
+            # Skip piprot until https://github.com/sesh/piprot/issues/73 fixed
+            #
+            #
+            # self.stdout.write("_"*79 + "\n")
+            # output = [
+            #     "\n#\n# list of out of date packages made with piprot:\n#\n"
+            # ]
+            # sp=VerboseSubprocess("piprot", "--outdated", requirement_out, cwd=str(requirements_path))
+            # for line in sp.iter_output():
+            #     print(line, end="", flush=True)
+            #     output.append("# %s" % line)
+            #
+            # self.stdout.write("\nUpdate file %r\n" % requirement_out)
+            # filepath = Path(requirements_path, requirement_out).resolve()
+            # assert filepath.is_file(), "File not exists: %r" % filepath
+            # with open(filepath, "a") as f:
+            #     f.writelines(output)
 
     def do_change_editable_address(self, arg):
         """
