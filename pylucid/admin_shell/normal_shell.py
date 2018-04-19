@@ -188,7 +188,7 @@ class PyLucidNormalShell(Cmd2):
         try:
             import pytest
         except ImportError as err:
-            print("ERROR: Can't import pytest: %s (pytest not installed, in normal installation!)")
+            print("ERROR: Can't import pytest: %s (pytest not installed, in normal installation!)" % err)
         else:
             root_path = str(self.package_path)
             print("chdir %r" % root_path)
