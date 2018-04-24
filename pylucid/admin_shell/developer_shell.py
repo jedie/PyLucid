@@ -30,7 +30,7 @@ class PyLucidDeveloperShell(PyLucidNormalShell):
         Direct start with:
             $ pylucid_admin upgrade_requirements
         """
-        requirements_path = self.requirements.get_requirement_path()
+        requirements_path = self.path_helper.req_filepath
 
         for requirement_in in requirements_path.glob("*.in"):
             requirement_in = Path(requirement_in).name
