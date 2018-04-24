@@ -66,7 +66,7 @@ except ImportError as err:
     print("\nERROR: 'ensurepip' not available: %s (Maybe 'python3-venv' package not installed?!?)" % err)
 
 
-__version__ = "1.0.0rc17" # Version from used 'bootstrap_env' to generate this file.
+__version__ = "1.0.0rc18" # Version from used 'bootstrap_env' to generate this file.
 
 
 log = logging.getLogger(__name__)
@@ -763,6 +763,17 @@ class BootBootstrapEnvShell(Cmd2):
     complete_boot_developer = complete_boot
 
 
-if __name__ == '__main__':
-    # Start the shell
+def main():
+    """
+    Start the shell.
+
+    This may also used in setup.py, e.g.:
+        entry_points={'console_scripts': [
+            "pylucid_boot = pylucid.pylucid_boot:main",
+        ]},
+    """
     BootBootstrapEnvShell().cmdloop()
+
+
+if __name__ == '__main__':
+    main()
