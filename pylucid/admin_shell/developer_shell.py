@@ -12,8 +12,13 @@ import re
 import subprocess
 from pathlib import Path
 
+# https://github.com/jedie/bootstrap_env
+import bootstrap_env
+from bootstrap_env.utils.cookiecutter_utils import verbose_cookiecutter
+
+# PyLucid
 import pylucid
-from pylucid.admin_shell.normal_shell import PyLucidNormalShell, VERSION_PREFIXES
+from pylucid.admin_shell.normal_shell import VERSION_PREFIXES, PyLucidNormalShell
 from pylucid.pylucid_boot import VerboseSubprocess
 
 
@@ -147,9 +152,6 @@ class PyLucidDeveloperShell(PyLucidNormalShell):
         direct call, e.g.:
         $ pylucid_admin update_own_boot_file
         """
-        # Note: Theses packages not available on normal install:
-        import bootstrap_env
-        from bootstrap_env.utils.cookiecutter_utils import verbose_cookiecutter
         from packaging.version import parse
 
         # https://packaging.pypa.io/en/latest/version/
