@@ -30,9 +30,15 @@ class PyLucidDeveloperShell(PyLucidNormalShell):
         Direct start with:
             $ pylucid_admin upgrade_requirements
         """
-        requirements_path = self.path_helper.req_filepath
+        requirement_filepath = self.path_helper.req_filepath # .../pylucid/requirements/developer_installation.txt
 
+        assert requirement_filepath.is_file(), "File not found: '%s'" % requirement_filepath
+
+        requirements_path = requirement_filepath.parent
+
+        count = 0
         for requirement_in in requirements_path.glob("*.in"):
+            count +=1
             requirement_in = Path(requirement_in).name
 
             if requirement_in.startswith("basic_"):
@@ -78,6 +84,12 @@ class PyLucidDeveloperShell(PyLucidNormalShell):
             # assert filepath.is_file(), "File not exists: %r" % filepath
             # with open(filepath, "a") as f:
             #     f.writelines(output)
+
+        if count==0:
+            print("ERROR: no *.in files found in: '%s'" % requirements_path)
+        else:
+            print("processed %i *.in files", count)
+
 
     def do_change_editable_address(self, arg):
         """
