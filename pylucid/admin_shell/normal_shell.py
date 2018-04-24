@@ -123,10 +123,10 @@ class PyLucidNormalShell(Cmd2):
         create_instance(dest=destination, name=name, remove=False, exist_ok=False)
 
     def test_project_manage(self, *args, timeout=1000, check=False):
-        cwd = Path(self.path_helper.base.parent, "pylucid_page_instance") # e.g.: PyLucid-env/src/pylucid/pylucid_page_instance
+        cwd = self.path_helper.base.parent # e.g.: PyLucid-env/src/pylucid/pylucid_page_instance
         assert cwd.is_dir(), "ERROR: Path not exists: %r" % cwd
 
-        args=["./manage.py"] + list(args)
+        args=["./pylucid_page_instance/manage.py"] + list(args)
 
         manage_path = Path(cwd, args[0])
         assert manage_path.is_file(), "ERROR: File not found: '%s'" % manage_path
@@ -141,7 +141,7 @@ class PyLucidNormalShell(Cmd2):
         call ./manage.py [args] from test project (*not* from your page instance!)
 
         direct call, e.g.:
-        $ ./admin.py test_project_manage diffsettings
+        $ pylucid_admin test_project_manage diffsettings
         """
         self.test_project_manage(*arg.split(" "))
 
@@ -153,7 +153,7 @@ class PyLucidNormalShell(Cmd2):
         run django development server with test project
 
         Direct call:
-        $ ./pylucid_admin.py run_test_project_dev_server
+        $ pylucid_admin run_test_project_dev_server
 
         Optional arguments are passed to ./manage.py
 
