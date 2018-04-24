@@ -8,8 +8,15 @@
 -e git+https://github.com/jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
 -e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
 aldryn-apphooks-config==0.4.1  # via djangocms-blog
+arrow==0.12.1             # via jinja2-time
+binaryornot==0.4.4        # via cookiecutter
+bootstrap-env==1.0.0rc18
+certifi==2018.4.16        # via requests
+chardet==3.0.4            # via binaryornot, requests
+click==6.7                # via cookiecutter
 cmsplugin-filer==1.1.3
 cmsplugin-pygments==0.8.3
+cookiecutter==1.6.0       # via bootstrap-env
 django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
 django-appdata==0.2.0     # via aldryn-apphooks-config
 django-classy-tags==0.8.0  # via django-cms, django-sekizai
@@ -43,17 +50,29 @@ djangocms-history==0.5.3
 djangocms-htmlsitemap==0.3.2
 docutils==0.14
 easy-thumbnails==2.5      # via cmsplugin-filer, django-filer, djangocms-blog
+future==0.16.0            # via cookiecutter
 html5lib==1.0.1           # via textile
+idna==2.6                 # via requests
+jinja2-time==0.2.0        # via cookiecutter
+jinja2==2.10              # via cookiecutter, jinja2-time
 lxml==4.2.1               # via django-tools, djangocms-blog
 markdown==2.6.11
+markupsafe==1.0           # via jinja2
+packaging==17.1           # via bootstrap-env
 pillow==5.1.0
+poyo==0.4.1               # via cookiecutter
 pygments==2.2.0
+pyparsing==2.2.0          # via packaging
 python-creole==1.3.2
+python-dateutil==2.7.2    # via arrow
 pytz==2018.4              # via django, djangocms-blog
 rcssmin==1.0.6            # via django-compressor
+requests==2.18.4          # via cookiecutter
 rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via html5lib, textile
+six==1.11.0               # via html5lib, packaging, python-dateutil, textile
 sqlparse==0.2.4           # via django-debug-toolbar
 textile==3.0.3
 unidecode==0.4.21         # via django-filer
+urllib3==1.22             # via requests
 webencodings==0.5.1       # via html5lib
+whichcraft==0.4.1         # via cookiecutter

@@ -29,8 +29,8 @@ python-creole
 docutils
 
 
-# clone PyLucid own projects with git push access
-#-------------------------------------------------
+# Install PyLucid "own" projects as editables
+#--------------------------------------------
 
 # https://github.com/jedie/bootstrap_env
 # https://pypi.org/project/bootstrap_env/
