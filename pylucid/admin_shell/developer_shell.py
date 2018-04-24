@@ -94,7 +94,7 @@ class PyLucidDeveloperShell(PyLucidNormalShell):
         Direct start with:
             $ pylucid_admin change_editable_address
         """
-        src_path = self.requirements.src_path  # Path instance pointed to 'src' directory
+        src_path = self.path_helper.src_path  # Path instance pointed to 'src' directory
         for p in src_path.iterdir():
             if not p.is_dir():
                 continue

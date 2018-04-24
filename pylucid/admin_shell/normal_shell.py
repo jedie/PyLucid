@@ -85,10 +85,10 @@ else:
 class PyLucidNormalShell(Cmd2):
     version = __version__
 
-    def __init__(self, requirements, self_filename, package_path):
-        self.requirements=requirements
-        self.package_path=package_path
-        super().__init__(self_filename=self_filename)
+    def __init__(self, path_helper, *args, **kwargs):
+        self.path_helper = path_helper # bootstrap_env.admin_shell.path_helper.PathHelper instance
+
+        super().__init__(*args, **kwargs)
 
     def do_create_page_instance(self, arg):
         """
@@ -123,7 +123,7 @@ class PyLucidNormalShell(Cmd2):
         create_instance(dest=destination, name=name, remove=False, exist_ok=False)
 
     def test_project_manage(self, *args, timeout=1000, check=False):
-        cwd = Path(self.package_path.parent, "pylucid_page_instance") # e.g.: PyLucid-env/src/pylucid/pylucid_page_instance
+        cwd = Path(self.path_helper.base.parent, "pylucid_page_instance") # e.g.: PyLucid-env/src/pylucid/pylucid_page_instance
         assert cwd.is_dir(), "ERROR: Path not exists: %r" % cwd
 
         args=["./manage.py"] + list(args)
@@ -190,9 +190,12 @@ class PyLucidNormalShell(Cmd2):
         except ImportError as err:
             print("ERROR: Can't import pytest: %s (pytest not installed, in normal installation!)" % err)
         else:
-            root_path = str(self.package_path)
+            root_path = str(self.path_helper.base)
             print("chdir %r" % root_path)
             os.chdir(root_path)
+
+            ini = Path(root_path, "pytest.ini")
+            assert ini.is_file(), "File not found: %s" % ini
 
             args = sys.argv[2:]
             print("Call Pytest with args: %s" % repr(args))
@@ -231,7 +234,7 @@ class PyLucidNormalShell(Cmd2):
         ).verbose_call(check=False)
 
         # Update the requirements files by...
-        if self.requirements.normal_mode:
+        if self.path_helper.normal_mode:
             # ... update 'pylucid' PyPi package
             return_code = VerboseSubprocess(
                 pip3_path, "install", "--upgrade", *PYLUCID_NORMAL_REQ
@@ -240,15 +243,15 @@ class PyLucidNormalShell(Cmd2):
             # ... git pull pylucid sources
             return_code = VerboseSubprocess(
                 "git", "pull", "origin",
-                cwd=str(self.package_path)
+                cwd=str(self.path_helper.base)
             ).verbose_call(check=False)
 
             return_code = VerboseSubprocess(
                 pip3_path, "install", "--editable", ".",
-                cwd=str(self.package_path)
+                cwd=str(self.path_helper.base)
             ).verbose_call(check=False)
 
-        requirement_file_path = str(self.requirements.get_requirement_file_path())
+        requirement_file_path = str(self.path_helper.req_filepath)
 
         # Update with requirements files:
         self.stdout.write("Use: '%s'\n" % requirement_file_path)
@@ -260,17 +263,17 @@ class PyLucidNormalShell(Cmd2):
             timeout=120  # extended timeout for slow Travis ;)
         ).verbose_call(check=False)
 
-        if not self.requirements.normal_mode:
+        if not self.path_helper.normal_mode:
             # Run pip-sync only in developer mode
             return_code = VerboseSubprocess(
                 "pip-sync", requirement_file_path,
-                cwd=str(self.package_path)
+                cwd=str(self.path_helper.base)
             ).verbose_call(check=False)
 
             # 'reinstall' pylucid editable, because it's not in 'requirement_file_path':
             return_code = VerboseSubprocess(
                 pip3_path, "install", "--editable", ".",
-                cwd=str(self.package_path)
+                cwd=str(self.path_helper.base)
             ).verbose_call(check=False)
 
         self.stdout.write("Please restart %s\n" % self.self_filename)

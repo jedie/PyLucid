@@ -5,16 +5,21 @@ from pathlib import Path
 
 # PyLucid
 import pylucid
-from pylucid.pylucid_admin import Requirements
+from pylucid.admin_shell.path_helper import get_path_helper_instance
 from pylucid.pylucid_boot import VerboseSubprocess
 
-PACKAGE_PATH = Path(pylucid.__file__).parent
+
 
 
 class TestPyLucidAdmin(unittest.TestCase):
     """
     Tests for pylucid/pylucid_admin.py
     """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.path_helper = get_path_helper_instance()
+
     def pylucid_admin_run(self, *args):
         args = ("pylucid_admin", ) + args
         try:
@@ -45,22 +50,19 @@ class TestPyLucidAdmin(unittest.TestCase):
         self.assertIn("pylucid_admin.py shell", output)
         self.assertIn("*** Unknown command: 'foo bar is unknown ;)' ***", output)
 
-    def test_requirement_path(self):
-        requirements = Requirements(package_path=PACKAGE_PATH)
-        self.assertTrue(requirements.get_requirement_path().is_dir())
-        self.assertTrue(requirements.get_requirement_file_path().is_file())
+    def test_path_helper(self):
+        self.path_helper.print_path()
+        self.path_helper.assert_all_path()
 
-    @unittest.skipIf(Requirements(package_path=PACKAGE_PATH).normal_mode, "Only available in 'developer' mode.")
+    @unittest.skipIf(get_path_helper_instance().normal_mode, "Only available in 'developer' mode.")
     def test_change_editable_address(self):
         """
         All test runs on Travis-CI install PyLucid as editable!
         See .travis.yml
         """
-        requirements = Requirements(package_path=PACKAGE_PATH)
+        self.assertFalse(self.path_helper.normal_mode)
 
-        self.assertFalse(requirements.normal_mode)
-
-        pylucid_src_path = Path(requirements.src_path, "pylucid")
+        pylucid_src_path = self.path_helper.base.parent
         print("pylucid_src_path: %r" % pylucid_src_path)
 
         self.assertTrue(pylucid_src_path.is_dir())

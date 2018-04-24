@@ -11,7 +11,7 @@ class Requirements:
     }
     def __init__(self, package_path):
         assert package_path.is_dir()
-        self.package_path = package_path
+        self.path_helper.base = package_path
 
         self.src_path = Path(sys.prefix, "src")
         src_pylucid_path = Path(self.src_path, "pylucid")
@@ -19,7 +19,7 @@ class Requirements:
             print("PyLucid is installed as editable here: %s" % src_pylucid_path)
             self.install_mode=self.DEVELOPER_INSTALL
         else:
-            print("PyLucid is installed as packages here: %s" % self.package_path)
+            print("PyLucid is installed as packages here: %s" % self.path_helper.base)
             self.install_mode=self.NORMAL_INSTALL
 
     @property
@@ -30,7 +30,7 @@ class Requirements:
         """
         :return: Path(.../pylucid/requirements/)
         """
-        requirement_path = Path(self.package_path, "pylucid", "requirements").resolve()
+        requirement_path = Path(self.path_helper.base, "pylucid", "requirements").resolve()
         if not requirement_path.is_dir():
             raise RuntimeError("Requirements directory not found here: %s" % requirement_path)
         return requirement_path
