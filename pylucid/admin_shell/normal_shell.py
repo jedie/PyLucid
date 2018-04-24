@@ -243,12 +243,12 @@ class PyLucidNormalShell(Cmd2):
             # ... git pull pylucid sources
             return_code = VerboseSubprocess(
                 "git", "pull", "origin",
-                cwd=str(self.path_helper.base)
+                cwd=str(self.path_helper.pkg_path)
             ).verbose_call(check=False)
 
             return_code = VerboseSubprocess(
                 pip3_path, "install", "--editable", ".",
-                cwd=str(self.path_helper.base)
+                cwd=str(self.path_helper.pkg_path)
             ).verbose_call(check=False)
 
         requirement_file_path = str(self.path_helper.req_filepath)
@@ -273,7 +273,7 @@ class PyLucidNormalShell(Cmd2):
             # 'reinstall' pylucid editable, because it's not in 'requirement_file_path':
             return_code = VerboseSubprocess(
                 pip3_path, "install", "--editable", ".",
-                cwd=str(self.path_helper.base)
+                cwd=str(self.path_helper.pkg_path)
             ).verbose_call(check=False)
 
         self.stdout.write("Please restart %s\n" % self.self_filename)
