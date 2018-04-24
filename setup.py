@@ -257,6 +257,9 @@ setup(
     ),
     include_package_data=True, # include package data under version control
     python_requires='>=3.5',
+    install_requires=[
+        "bootstrap_env>=1.0.0rc17",
+    ],
     scripts=[
         'pylucid/pylucid_boot.py',
         'pylucid/pylucid_admin.py',
