@@ -93,7 +93,7 @@ class PyLucidDeveloperShell(PyLucidNormalShell):
         if count==0:
             print("ERROR: no *.in files found in: '%s'" % requirements_path)
         else:
-            print("processed %i *.in files", count)
+            print("processed %i *.in files" % count)
 
 
     def do_change_editable_address(self, arg):
