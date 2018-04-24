@@ -33,6 +33,9 @@ known_cms=cms
 
 known_thirdparty=publisher
 
+import_heading_bootstrap_env=https://github.com/jedie/bootstrap_env
+known_bootstrap_env=bootstrap_env
+
 import_heading_djangotools=https://github.com/jedie/django-tools
 known_djangotools=django_tools
 
@@ -43,4 +46,4 @@ import_heading_firstparty=PyLucid
 known_first_party=pylucid,pylucid_todo
 
 default_section=THIRDPARTY
-sections=FUTURE,STDLIB,EXTERNAL,DJANGO,THIRDPARTY,DJANGOTOOLS,CMS,DJANGOCMSTOOLS,FIRSTPARTY,LOCALFOLDER
+sections=FUTURE,STDLIB,EXTERNAL,DJANGO,THIRDPARTY,bootstrap_env,djangotools,cms,djangocmstools,FIRSTPARTY,LOCALFOLDER
