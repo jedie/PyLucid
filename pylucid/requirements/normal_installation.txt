@@ -10,7 +10,7 @@
 aldryn-apphooks-config==0.5.2  # via djangocms-blog
 arrow==0.13.0             # via jinja2-time
 binaryornot==0.4.4        # via cookiecutter
-bootstrap-env==1.0.0rc18
+bootstrap-env==1.0.2
 certifi==2018.11.29       # via requests
 chardet==3.0.4            # via binaryornot, requests
 click==7.0                # via cookiecutter
