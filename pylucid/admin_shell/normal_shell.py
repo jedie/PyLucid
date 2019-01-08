@@ -73,15 +73,6 @@ def in_virtualenv():
     return "VIRTUAL_ENV" in os.environ
 
 
-if in_virtualenv():
-    print("Activated virtualenv detected: %r (%s)" % (sys.prefix, sys.executable))
-else:
-    print("We are not in a virtualenv, ok.")
-
-
-
-
-
 class PyLucidNormalShell(Cmd2):
     version = __version__
 
