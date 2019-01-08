@@ -6,3 +6,5 @@ recursive-exclude * *.py[co]
 
 recursive-exclude pylucid_page_instance/static *
 include pylucid_page_instance/static/.gitignore
+
+recursive-include src/pylucid/pylucid_installer *
