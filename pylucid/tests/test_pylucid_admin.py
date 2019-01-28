@@ -31,7 +31,7 @@ class TestPyLucidAdmin(unittest.TestCase):
         output = self.pylucid_admin_run("help")
         print(output)
 
-        self.assertIn("pylucid_admin.py shell", output)
+        self.assertIn("pylucid_admin shell", output)
         self.assertIn("Available commands (type help <topic>):", output)
 
         self.assertIn("create_page_instance", output)
@@ -47,7 +47,7 @@ class TestPyLucidAdmin(unittest.TestCase):
         output = self.pylucid_admin_run("foo bar is unknown ;)")
         print(output)
 
-        self.assertIn("pylucid_admin.py shell", output)
+        self.assertIn("pylucid_admin shell", output)
         self.assertIn("*** Unknown command: 'foo bar is unknown ;)' ***", output)
 
     def test_path_helper(self):

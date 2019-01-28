@@ -30,7 +30,7 @@ class TestPyLucidBoot(unittest.TestCase):
         output = self.pylucid_admin_run("help")
         print(output)
 
-        self.assertIn("pylucid_boot.py shell", output)
+        self.assertIn("pylucid_boot shell", output)
         self.assertIn("Available commands (type help <topic>):", output)
 
         self.assertIn("boot", output)
