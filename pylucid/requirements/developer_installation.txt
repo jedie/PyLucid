@@ -11,7 +11,6 @@
 -e git+https://github.com/jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
 -e git+https://github.com/jedie/django-processinfo.git#egg=django-processinfo
 -e git+https://github.com/jedie/django-tools.git@master#egg=django-tools
--e git+https://github.com/jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
 -e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
 -e git+https://github.com/jedie/python-creole.git#egg=python-creole
 aldryn-apphooks-config==0.5.2  # via djangocms-blog
@@ -56,11 +55,12 @@ djangocms-attributes-field==1.0.0  # via cmsplugin-filer
 djangocms-blog==0.9.8
 djangocms-history==1.0.0
 djangocms-htmlsitemap==0.4.0
+djangocms-text-ckeditor==3.7.0
 docopt==0.6.2             # via coveralls
 docutils==0.14
 easy-thumbnails==2.5      # via cmsplugin-filer, django-filer, djangocms-blog
 future==0.17.1            # via cookiecutter
-html5lib==1.0.1           # via textile
+html5lib==1.0.1           # via djangocms-text-ckeditor, textile
 idna==2.8                 # via requests
 jinja2-time==0.2.0        # via cookiecutter
 jinja2==2.10              # via cookiecutter, jinja2-time

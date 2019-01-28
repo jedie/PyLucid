@@ -49,13 +49,3 @@ django-debug-toolbar-django-info
 
 # https://github.com/mitar/cmsplugin-markup
 -e git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
-
-
-# Temporary work-a-rounds
-#------------------------
-
-# https://github.com/jedie/djangocms-text-ckeditor/
-# Use own repro via "[normal|developer]_installation.in"
-# until https://github.com/divio/djangocms-text-ckeditor/pull/464 is in PyPi Release (maybe in >3.6.0)
-# https://pypi.org/project/djangocms-text-ckeditor/#history
--e git+https://github.com/jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
