@@ -10,7 +10,7 @@
 
     http://www.python-forum.de/viewtopic.php?f=21&t=26895 (de)
 
-    :copyleft: 2009-2016 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2019 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -99,10 +99,9 @@ if "publish" in sys.argv:
     TODO: Look at: https://github.com/zestsoftware/zest.releaser
 
     Source: https://github.com/jedie/python-code-snippets/blob/master/CodeSnippets/setup_publish.py
-    copyleft 2015-2017 Jens Diemer - GNU GPL v2+
+    copyleft 2015-2019 Jens Diemer - GNU GPL v2+
     """
-    if sys.version_info[0] == 2:
-        input = raw_input
+    assert sys.version_info[0] > 2, "Python v3 is needed!"
 
     import_error = False
     try:
@@ -152,8 +151,10 @@ if "publish" in sys.argv:
             print("Bye.")
             sys.exit(-1)
 
-    if "dev" in __version__:
-        confirm("WARNING: Version contains 'dev': v%s\n" % __version__)
+    for key in ("dev", "rc"):
+        if key in __version__:
+            confirm("WARNING: Version contains %r: v%s\n" % (key, __version__))
+            break
 
     print("\nCheck if we are on 'master' branch:")
     call_info, output = verbose_check_output("git", "branch", "--no-color")
@@ -248,6 +249,7 @@ if "publish" in sys.argv:
     verbose_check_call("git", "push", "--tags")
 
     sys.exit(0)
+
 
 
 setup(

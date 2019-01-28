@@ -27,27 +27,18 @@ log = logging.getLogger(__name__)
 
 
 # Used to check if pip-compiles runs fine, see: PyLucidShell.do_upgrade_requirements()
-VERSION_PREFIXES = (
-    "django==1.11.",
-    "django-cms==3.4.",
-)
+VERSION_PREFIXES = ("django==1.11.", "django-cms==3.4.")
 
 # Used in PyLucidShell.do_update_env()
-PYLUCID_NORMAL_REQ=[
-    "pylucid>=%s" % __version__
-]
+PYLUCID_NORMAL_REQ = ["pylucid>=%s" % __version__]
 
-MANAGE_COMMANDS=( # TODO: Create list dynamicly
+MANAGE_COMMANDS = (  # TODO: Create list dynamicly
     "--help",
-
     "changepassword",
     "createsuperuser",
-
     "cms",
-
     "compress",
     "mtime_cache",
-
     "check",
     "createcachetable",
     "diffsettings",
@@ -56,14 +47,11 @@ MANAGE_COMMANDS=( # TODO: Create list dynamicly
     "sendtestemail",
     "showmigrations",
     "collectstatic",
-
     "cms_page_info",
     "cms_plugin_info",
     "template_info",
-
     "image_info",
     "replace_broken",
-
     "collectstatic",
 )
 
@@ -73,20 +61,11 @@ def in_virtualenv():
     return "VIRTUAL_ENV" in os.environ
 
 
-if in_virtualenv():
-    print("Activated virtualenv detected: %r (%s)" % (sys.prefix, sys.executable))
-else:
-    print("We are not in a virtualenv, ok.")
-
-
-
-
-
 class PyLucidNormalShell(Cmd2):
     version = __version__
 
     def __init__(self, path_helper, *args, **kwargs):
-        self.path_helper = path_helper # bootstrap_env.admin_shell.path_helper.PathHelper instance
+        self.path_helper = path_helper  # bootstrap_env.admin_shell.path_helper.PathHelper instance
 
         super().__init__(*args, **kwargs)
 
@@ -123,10 +102,10 @@ class PyLucidNormalShell(Cmd2):
         create_instance(dest=destination, name=name, remove=False, exist_ok=False)
 
     def test_project_manage(self, *args, timeout=1000, check=False):
-        cwd = self.path_helper.base.parent # e.g.: PyLucid-env/src/pylucid/pylucid_page_instance
+        cwd = self.path_helper.base.parent  # e.g.: PyLucid-env/src/pylucid/pylucid_page_instance
         assert cwd.is_dir(), "ERROR: Path not exists: %r" % cwd
 
-        args=["./pylucid_page_instance/manage.py"] + list(args)
+        args = ["./pylucid_page_instance/manage.py"] + list(args)
 
         manage_path = Path(cwd, args[0])
         assert manage_path.is_file(), "ERROR: File not found: '%s'" % manage_path
@@ -166,15 +145,15 @@ class PyLucidNormalShell(Cmd2):
         while True:
             try:
                 print("\n")
-                print("="*79)
-                print("="*79)
+                print("=" * 79)
+                print("=" * 79)
                 return_code = self.test_project_manage(
                     "run_test_project_dev_server",
                     *args,
-                    timeout=None, # Run forever
-                    check=False, # Don't sys.exit(return_code) if return_code != 0
+                    timeout=None,  # Run forever
+                    check=False,  # Don't sys.exit(return_code) if return_code != 0
                 )
-                for x in range(3,0,-1):
+                for x in range(3, 0, -1):
                     print("Reload in %i sec..." % x)
                     time.sleep(1)
             except KeyboardInterrupt:
@@ -229,26 +208,22 @@ class PyLucidNormalShell(Cmd2):
         print("pip found here: '%s'" % pip3_path)
         pip3_path = str(pip3_path)
 
-        return_code = VerboseSubprocess(
-            pip3_path, "install", "--upgrade", "pip"
-        ).verbose_call(check=False)
+        return_code = VerboseSubprocess(pip3_path, "install", "--upgrade", "pip").verbose_call(check=False)
 
         # Update the requirements files by...
         if self.path_helper.normal_mode:
             # ... update 'pylucid' PyPi package
-            return_code = VerboseSubprocess(
-                pip3_path, "install", "--upgrade", *PYLUCID_NORMAL_REQ
-            ).verbose_call(check=False)
+            return_code = VerboseSubprocess(pip3_path, "install", "--upgrade", *PYLUCID_NORMAL_REQ).verbose_call(
+                check=False
+            )
         else:
             # ... git pull pylucid sources
-            return_code = VerboseSubprocess(
-                "git", "pull", "origin",
-                cwd=str(self.path_helper.pkg_path)
-            ).verbose_call(check=False)
+            return_code = VerboseSubprocess("git", "pull", "origin", cwd=str(self.path_helper.pkg_path)).verbose_call(
+                check=False
+            )
 
             return_code = VerboseSubprocess(
-                pip3_path, "install", "--editable", ".",
-                cwd=str(self.path_helper.pkg_path)
+                pip3_path, "install", "--editable", ".", cwd=str(self.path_helper.pkg_path)
             ).verbose_call(check=False)
 
         requirement_file_path = str(self.path_helper.req_filepath)
@@ -256,24 +231,25 @@ class PyLucidNormalShell(Cmd2):
         # Update with requirements files:
         self.stdout.write("Use: '%s'\n" % requirement_file_path)
         return_code = VerboseSubprocess(
-            "pip3", "install",
-            "--exists-action", "b", # action when a path already exists: (b)ackup
+            "pip3",
+            "install",
+            "--exists-action",
+            "b",  # action when a path already exists: (b)ackup
             "--upgrade",
-            "--requirement", requirement_file_path,
-            timeout=120  # extended timeout for slow Travis ;)
+            "--requirement",
+            requirement_file_path,
+            timeout=120,  # extended timeout for slow Travis ;)
         ).verbose_call(check=False)
 
         if not self.path_helper.normal_mode:
             # Run pip-sync only in developer mode
             return_code = VerboseSubprocess(
-                "pip-sync", requirement_file_path,
-                cwd=str(self.path_helper.base)
+                "pip-sync", requirement_file_path, cwd=str(self.path_helper.base)
             ).verbose_call(check=False)
 
             # 'reinstall' pylucid editable, because it's not in 'requirement_file_path':
             return_code = VerboseSubprocess(
-                pip3_path, "install", "--editable", ".",
-                cwd=str(self.path_helper.pkg_path)
+                pip3_path, "install", "--editable", ".", cwd=str(self.path_helper.pkg_path)
             ).verbose_call(check=False)
 
         self.stdout.write("Please restart %s\n" % self.self_filename)
