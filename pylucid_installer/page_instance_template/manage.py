@@ -10,8 +10,10 @@ if sys.version_info < (3, 5):
 
 
 if __name__ == "__main__":
+    print("Run with interpreter: %s" % sys.executable)
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "example_project.settings")
-    # print("Use DJANGO_SETTINGS_MODULE=%r" % os.environ["DJANGO_SETTINGS_MODULE"])
+    print("Use DJANGO_SETTINGS_MODULE=%r\n" % os.environ["DJANGO_SETTINGS_MODULE"])
 
     from django.core.management import execute_from_command_line
 
