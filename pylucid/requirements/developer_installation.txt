@@ -19,7 +19,7 @@ arrow==0.13.0             # via jinja2-time
 atomicwrites==1.2.1       # via pytest
 attrs==18.2.0             # via pytest
 binaryornot==0.4.4        # via cookiecutter
-bleach==3.0.2             # via readme-renderer
+bleach==3.1.0             # via readme-renderer
 certifi==2018.11.29       # via requests
 chardet==3.0.4            # via binaryornot, requests
 click==7.0                # via cookiecutter, pip-tools
@@ -28,13 +28,13 @@ cookiecutter==1.6.0
 coverage==4.5.2           # via coveralls, pytest-cov
 coveralls==1.5.1
 django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
-django-appdata==0.2.0     # via aldryn-apphooks-config
+django-appdata==0.2.1     # via aldryn-apphooks-config
 django-classy-tags==0.8.0  # via django-cms, django-sekizai
 django-cms==3.4.6
 django-compressor==2.2
 django-debug-toolbar==1.11
 django-extensions==2.1.4
-django-filer==1.4.3
+django-filer==1.4.4
 django-formtools==2.1     # via django-cms
 django-js-asset==1.1.0    # via django-mptt
 django-meta-mixin==0.3.0  # via djangocms-blog
@@ -50,10 +50,10 @@ django-taggit==0.23.0     # via django-taggit-autosuggest, django-taggit-templat
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
 django-treebeard==4.3     # via django-cms
 django==1.11.18
-djangocms-admin-style==1.2.9  # via django-cms
+djangocms-admin-style==1.3.0  # via django-cms
 djangocms-apphook-setup==0.3.0  # via djangocms-blog
 djangocms-attributes-field==1.0.0  # via cmsplugin-filer
-djangocms-blog==0.9.7
+djangocms-blog==0.9.8
 djangocms-history==1.0.0
 djangocms-htmlsitemap==0.4.0
 docopt==0.6.2             # via coveralls
@@ -68,19 +68,19 @@ lxml==4.3.0               # via djangocms-blog
 markdown==3.0.1
 markupsafe==1.1.0         # via jinja2
 more-itertools==5.0.0     # via pytest
-packaging==18.0
+packaging==19.0
 pillow==5.4.1
-pip-tools==3.2.0
+pip-tools==3.3.2
 piprot==0.9.10
-pkginfo==1.5.0            # via twine
-pluggy==0.8.0             # via pytest
+pkginfo==1.5.0.1          # via twine
+pluggy==0.8.1             # via pytest
 poyo==0.4.2               # via cookiecutter
 py==1.7.0                 # via pytest
 pygments==2.3.1
-pyparsing==2.3.0          # via packaging
+pyparsing==2.3.1          # via packaging
 pytest-cov==2.6.1
 pytest-django==3.4.5
-pytest==4.1.0
+pytest==4.1.1
 python-dateutil==2.7.5    # via arrow
 pytz==2018.9              # via django, djangocms-blog
 rcssmin==1.0.6            # via django-compressor
@@ -92,7 +92,7 @@ rjsmin==1.0.12            # via django-compressor
 six==1.12.0               # via bleach, django-extensions, html5lib, more-itertools, packaging, pip-tools, piprot, pytest, python-dateutil, readme-renderer, textile
 sqlparse==0.2.4           # via django-debug-toolbar
 textile==3.0.3
-tqdm==4.29.0              # via twine
+tqdm==4.30.0              # via twine
 twine==1.12.1
 unidecode==1.0.23         # via django-filer
 urllib3==1.24.1           # via requests
