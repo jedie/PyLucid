@@ -23,8 +23,8 @@ import subprocess
 import shutil
 
 
-if sys.version_info < (3, 4):
-    print("\nERROR: PyLucid requires Python 3.4 or greater!\n")
+if sys.version_info < (3, 5):
+    print("\nERROR: PyLucid requires Python 3.5 or greater!\n")
     sys.exit(101)
 
 from setuptools import setup, find_packages
