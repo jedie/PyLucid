@@ -88,7 +88,6 @@ ADMIN_FILE_NAME="pylucid_admin.py" # File under .../<project>/foobar_admin.py
 #
 DEVELOPER_INSTALL=["-e", "git+https://github.com/jedie/PyLucid.git@master#egg=%s" % PACKAGE_NAME]
 NORMAL_INSTALL=[
-    "--pre", # https://pip.pypa.io/en/stable/reference/pip_install/#pre-release-versions
     PACKAGE_NAME
 ]
 
