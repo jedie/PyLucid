@@ -232,6 +232,7 @@ Older changes are here: https://www.pylucid.org/de/blog/tag/backward-incompatibl
 == Release History
 
 * [[https://github.com/jedie/PyLucid/compare/v3.1.4...master|compare v3.1.4...master]] - **dev**
+** Update requirements
 ** TBC
 * [[https://github.com/jedie/PyLucid/compare/v3.1.3...v3.1.4|11.06.2019 - v3.1.4]]:
 ** Update requirements, e.g.: django==1.11.21, djangocms-blog==0.9.9, djangocms-history==1.1.0
