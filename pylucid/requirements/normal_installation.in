@@ -16,14 +16,8 @@
 # https://pypi.org/project/bootstrap_env/
 bootstrap-env>=1.0.0rc18
 
-# https://pypi.org/project/python-creole
-python-creole
-
 # https://pypi.org/project/django-dbpreferences
 #django-dbpreferences
-
-# https://pypi.org/project/django-tools
-django-tools
 
 # https://pypi.org/project/django-cms-tools
 django-cms-tools

@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 
 
 # Used to check if pip-compiles runs fine, see: PyLucidShell.do_upgrade_requirements()
-VERSION_PREFIXES = ("django==1.11.", "django-cms==3.4.")
+VERSION_PREFIXES = ("django==2.2.", "django-cms==3.7.")
 
 # Used in PyLucidShell.do_update_env()
 PYLUCID_NORMAL_REQ = ["pylucid>=%s" % __version__]

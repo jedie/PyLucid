@@ -24,10 +24,6 @@ django-extensions
 
 werkzeug # django-extensions 'runserver_plus' command requires werkzeit
 
-# for ReSt README generation
-python-creole
-docutils
-
 
 # Install PyLucid "own" projects as editables
 #--------------------------------------------
@@ -36,17 +32,9 @@ docutils
 # https://pypi.org/project/bootstrap_env/
 -e git+https://github.com/jedie/bootstrap_env.git#egg=bootstrap-env
 
-# https://github.com/jedie/python-creole/
-# https://pypi.org/project/python-creole
--e git+https://github.com/jedie/python-creole.git#egg=python-creole
-
 # https://github.com/jedie/django-dbpreferences/
 # https://pypi.org/project/django-dbpreferences
 #-e git+https://github.com/jedie/django-dbpreferences.git#egg=django-dbpreferences
-
-# https://github.com/jedie/django-tools/
-# https://pypi.org/project/django-tools
--e git+https://github.com/jedie/django-tools.git@master#egg=django-tools
 
 # https://github.com/jedie/django-cms-tools/
 # https://pypi.org/project/django-cms-tools
