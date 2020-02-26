@@ -32,7 +32,7 @@ django-meta==1.6.1        # via djangocms-blog
 django-mptt==0.11.0       # via django-filer
 django-parler==2.0.1      # via djangocms-blog
 django-polymorphic==2.1.2  # via django-filer
-django-processinfo==0.8.0  # via -r normal_installation.in (line 26)
+django-processinfo==0.9.0  # via -r normal_installation.in (line 26)
 django-sekizai==1.1.0     # via cmsplugin-filer, django-cms
 django-sortedm2m==3.0.0   # via djangocms-blog
 django-taggit-autosuggest==0.3.8  # via djangocms-blog

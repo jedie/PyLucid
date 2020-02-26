@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ToDoPlugin',
             fields=[
-                ('cmsplugin_ptr', models.OneToOneField(auto_created=True, serialize=False, primary_key=True, to='cms.CMSPlugin', parent_link=True)),
+                ('cmsplugin_ptr', models.OneToOneField(auto_created=True, serialize=False, primary_key=True, to='cms.CMSPlugin', parent_link=True, on_delete=models.CASCADE)),
                 ('code', models.TextField()),
             ],
             options={
