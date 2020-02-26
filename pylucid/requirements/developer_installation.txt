@@ -4,107 +4,112 @@
 #
 #    pip-compile --output-file=developer_installation.txt developer_installation.in
 #
--e git+https://github.com/jedie/bootstrap_env.git#egg=bootstrap-env
--e git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
--e git+https://github.com/jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
--e git+https://github.com/jedie/django-cms-tools.git@master#egg=django-cms-tools
--e git+https://github.com/jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
--e git+https://github.com/jedie/django-processinfo.git#egg=django-processinfo
--e git+https://github.com/jedie/django-tools.git@master#egg=django-tools
--e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
--e git+https://github.com/jedie/python-creole.git#egg=python-creole
-aldryn-apphooks-config==0.5.2  # via djangocms-blog
-arrow==0.15.2             # via jinja2-time
-atomicwrites==1.3.0       # via pytest
-attrs==19.2.0             # via pytest
+-e git+https://github.com/jedie/bootstrap_env.git#egg=bootstrap-env  # via -r developer_installation.in (line 33)
+-e git+https://github.com/pawelmarkowski/cmsplugin-filer@2.0.2#egg=cmsplugin-filer  # via -r basic_requirements.in (line 84)
+-e git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup  # via -r developer_installation.in (line 67)
+-e git+https://github.com/jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments  # via -r developer_installation.in (line 54)
+-e git+https://github.com/jedie/django-cms-tools.git@master#egg=django-cms-tools  # via -r developer_installation.in (line 41)
+-e git+https://github.com/jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info  # via -r developer_installation.in (line 57)
+-e git+https://github.com/jedie/django-processinfo.git#egg=django-processinfo  # via -r developer_installation.in (line 45)
+-e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets  # via -r developer_installation.in (line 60)
+aldryn-apphooks-config==0.5.3  # via djangocms-blog
+arrow==0.15.5             # via jinja2-time
+attrs==19.3.0             # via pytest
 binaryornot==0.4.4        # via cookiecutter
-bleach==3.1.0             # via readme-renderer
-certifi==2019.9.11        # via requests
+bleach==3.1.1             # via django-tools, readme-renderer
+certifi==2019.11.28       # via requests
+cffi==1.14.0              # via cryptography
 chardet==3.0.4            # via binaryornot, requests
 click==7.0                # via cookiecutter, pip-tools
-cmsplugin-filer==1.1.3
-cookiecutter==1.6.0
-coverage==4.5.4           # via coveralls, pytest-cov
-coveralls==1.8.2
+cookiecutter==1.7.0       # via bootstrap-env
+coverage==5.0.3           # via coveralls, pytest-cov
+coveralls==1.11.1         # via -r test_requirements.txt (line 12)
+cryptography==2.8         # via secretstorage
 django-appconf==1.0.3     # via cmsplugin-filer, django-compressor
-django-appdata==0.2.1     # via aldryn-apphooks-config
-django-classy-tags==0.9.0  # via django-cms, django-sekizai
-django-cms==3.4.6
-django-compressor==2.3
-django-debug-toolbar==2.0
-django-extensions==2.2.3
-django-filer==1.5.0
-django-formtools==2.1     # via django-cms
+django-appdata==0.2.2     # via aldryn-apphooks-config
+django-classy-tags==1.0.0  # via django-cms, django-sekizai
+django-cms==3.7.1         # via -r basic_requirements.in (line 57), aldryn-apphooks-config, cmsplugin-filer, cmsplugin-markup, django-cms-tools, djangocms-apphook-setup, djangocms-attributes-field, djangocms-blog, djangocms-history, djangocms-htmlsitemap, djangocms-text-ckeditor
+django-compressor==2.4    # via -r basic_requirements.in (line 42)
+django-debug-toolbar==2.2  # via -r basic_requirements.in (line 38), django-debug-toolbar-django-info
+django-extensions==2.2.8  # via -r developer_installation.in (line 23)
+django-filer==1.7.0       # via -r basic_requirements.in (line 76), cmsplugin-filer, djangocms-blog
+django-formtools==2.2     # via django-cms
 django-js-asset==1.2.2    # via django-mptt
-django-meta-mixin==0.3.0  # via djangocms-blog
-django-meta==1.5.2        # via django-meta-mixin, djangocms-blog
-django-mptt==0.10.0       # via django-filer
-django-parler==1.9.2      # via djangocms-blog
-django-polymorphic==2.0.3  # via django-filer
-django-sekizai==1.0.0     # via cmsplugin-filer, django-cms, django-meta-mixin
-django-sortedm2m==2.0.0   # via djangocms-blog
+django-meta==1.6.1        # via djangocms-blog
+django-mptt==0.11.0       # via django-filer
+django-parler==2.0.1      # via djangocms-blog
+django-polymorphic==2.1.2  # via django-filer
+django-sekizai==1.1.0     # via cmsplugin-filer, django-cms
+django-sortedm2m==3.0.0   # via djangocms-blog
 django-taggit-autosuggest==0.3.8  # via djangocms-blog
 django-taggit-templatetags==0.2.5  # via djangocms-blog
-django-taggit==0.23.0     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
+django-taggit==1.1.0      # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
-django-treebeard==4.3     # via django-cms
-django==1.11.25
-djangocms-admin-style==1.4.0  # via django-cms
-djangocms-apphook-setup==0.3.0  # via djangocms-blog
-djangocms-attributes-field==1.1.0  # via cmsplugin-filer
-djangocms-blog==0.9.11
-djangocms-history==1.1.0
-djangocms-htmlsitemap==0.5.0
-djangocms-text-ckeditor==3.8.0
+django-tools==0.46.1      # via -r basic_requirements.in (line 101), django-cms-tools
+django-treebeard==4.3.1   # via django-cms
+django==2.2.10            # via -r basic_requirements.in (line 35), cmsplugin-filer, cmsplugin-markup, django-appconf, django-appdata, django-classy-tags, django-cms, django-cms-tools, django-debug-toolbar, django-filer, django-formtools, django-mptt, django-polymorphic, django-processinfo, django-sekizai, django-taggit, django-taggit-templatetags, django-tools, django-treebeard, djangocms-htmlsitemap, easy-thumbnails
+djangocms-admin-style==1.5.0  # via django-cms
+djangocms-apphook-setup==0.4.1  # via djangocms-blog
+djangocms-attributes-field==1.2.0  # via cmsplugin-filer
+djangocms-blog==1.0.0     # via -r basic_requirements.in (line 92)
+djangocms-history==1.1.0  # via -r basic_requirements.in (line 70)
+djangocms-htmlsitemap==0.6.0  # via -r basic_requirements.in (line 65)
+djangocms-text-ckeditor==3.9.0  # via -r basic_requirements.in (line 61), djangocms-blog
 docopt==0.6.2             # via coveralls
-docutils==0.15.2
+docutils==0.16            # via cmsplugin-markup, python-creole, readme-renderer
 easy-thumbnails==2.6      # via cmsplugin-filer, django-filer, djangocms-blog
-future==0.17.1            # via cookiecutter
+future==0.18.2            # via cookiecutter
 html5lib==1.0.1           # via djangocms-text-ckeditor, textile
-icdiff==1.9.1
-idna==2.8                 # via requests
-importlib-metadata==0.23  # via pluggy, pytest
+icdiff==1.9.1             # via django-tools
+idna==2.9                 # via requests
+importlib-metadata==1.5.0  # via keyring, pluggy, pytest, twine
+jeepney==0.4.2            # via keyring, secretstorage
 jinja2-time==0.2.0        # via cookiecutter
-jinja2==2.10.1            # via cookiecutter, jinja2-time
-lxml==4.4.1
-markdown==3.1.1
+jinja2==2.11.1            # via cookiecutter, jinja2-time
+keyring==21.1.0           # via twine
+lxml==4.5.0               # via djangocms-blog
+markdown==3.2.1           # via cmsplugin-markup
 markupsafe==1.1.1         # via jinja2
-more-itertools==7.2.0     # via pytest, zipp
-packaging==19.2           # via pytest
-pillow==6.2.0
-pip-tools==4.1.0
-piprot==0.9.10
+more-itertools==8.2.0     # via pytest
+packaging==20.1           # via bootstrap-env, pytest
+pillow==7.0.0             # via -r basic_requirements.in (line 11), djangocms-text-ckeditor, easy-thumbnails
+pip-tools==4.5.0          # via -r developer_installation.in (line 15)
+piprot==0.9.11            # via -r developer_installation.in (line 18)
 pkginfo==1.5.0.1          # via twine
-pluggy==0.13.0            # via pytest
+pluggy==0.13.1            # via pytest
 poyo==0.5.0               # via cookiecutter
-pprintpp==0.4.0
-py==1.8.0                 # via pytest
-pygments==2.4.2
-pyparsing==2.4.2          # via packaging
-pytest-cov==2.7.1
-pytest-django==3.5.1
-pytest==5.2.0
-python-dateutil==2.8.0    # via arrow
-pytz==2019.2              # via django, djangocms-blog
+pprintpp==0.4.0           # via django-tools
+py==1.8.1                 # via pytest
+pycparser==2.19           # via cffi
+pygments==2.5.2           # via -r basic_requirements.in (line 15), cmsplugin-pygments, readme-renderer
+pyparsing==2.4.6          # via packaging
+pytest-cov==2.8.1         # via -r test_requirements.txt (line 10)
+pytest-django==3.8.0      # via -r test_requirements.txt (line 9)
+pytest==5.3.5             # via -r test_requirements.txt (line 8), pytest-cov, pytest-django
+python-creole==1.4.6      # via -r basic_requirements.in (line 98), cmsplugin-markup
+python-dateutil==2.8.1    # via arrow
+pytz==2019.3              # via django, djangocms-blog
 rcssmin==1.0.6            # via django-compressor
 readme-renderer==24.0     # via twine
+regex==2020.2.20          # via textile
 requests-futures==1.0.0   # via piprot
 requests-toolbelt==0.9.1  # via twine
-requests==2.22.0          # via cookiecutter, coveralls, piprot, requests-futures, requests-toolbelt, twine
+requests==2.23.0          # via cookiecutter, coveralls, piprot, requests-futures, requests-toolbelt, twine
 rjsmin==1.1.0             # via django-compressor
-six==1.12.0               # via bleach, django-appconf, django-extensions, django-sortedm2m, html5lib, packaging, pip-tools, piprot, python-dateutil, readme-renderer, textile
-sqlparse==0.3.0           # via django-debug-toolbar
-textile==3.0.4
-tqdm==4.36.1              # via twine
-twine==2.0.0
-unidecode==1.0.23         # via django-filer
-urllib3==1.25.6           # via requests
-wcwidth==0.1.7            # via pytest
+secretstorage==3.1.2      # via keyring
+six==1.14.0               # via bleach, cryptography, django-appconf, django-classy-tags, django-compressor, django-extensions, django-filer, django-meta, django-parler, django-sekizai, html5lib, packaging, pip-tools, piprot, python-dateutil, readme-renderer
+sqlparse==0.3.0           # via django, django-debug-toolbar
+textile==4.0.1            # via cmsplugin-markup
+tqdm==4.43.0              # via twine
+twine==3.1.1              # via -r developer_installation.in (line 12)
+unidecode==1.1.1          # via django-filer
+urllib3==1.25.8           # via requests
+wcwidth==0.1.8            # via pytest
 webencodings==0.5.1       # via bleach, html5lib
-werkzeug==0.16.0
-wheel==0.33.6
+werkzeug==1.0.0           # via -r developer_installation.in (line 25)
+wheel==0.34.2             # via -r developer_installation.in (line 9)
 whichcraft==0.6.1         # via cookiecutter
-zipp==0.6.0               # via importlib-metadata
+zipp==3.0.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools==41.2.0        # via markdown, twine
+# setuptools

@@ -206,6 +206,14 @@ Please, refer to each application documentation on details.
 
 On every update: Run the steps from section 'update': see above.
 
+=== v3.1 to v3.2
+
+update your page instance {{{urls.py}}} e.g.:
+{{{
+- url(r'^admin/', include(admin.site.urls)),
++ url(r'^admin/', admin.site.urls),
+}}}
+
 === v3.0 to v3.1
 
 Twitter bootstrap updated from v3 to v4: update you own templates/styles.
@@ -223,7 +231,8 @@ Older changes are here: https://www.pylucid.org/de/blog/tag/backward-incompatibl
 == Compatible Matrix
 
 | PyLucid | Django-CMS | Django    | Python
-| V3.0    | V3.4 LTS   | V1.11 LTS | 3.5, 3.6
+| v3.2    | V3.7       | V2.2 LTS  | 3.6, 3.7, 3.8
+| v3.0    | V3.4 LTS   | V1.11 LTS | 3.5, 3.6
 | v2.1    | v3.3       | v1.8 LTS  | 3.4, 3.5
 | v2.0    | v3.2       | v1.8 LTS  | 3.4, 3.5
 | <=v1.6  | -          | v1.6      | 2.6, 2.7
@@ -231,8 +240,11 @@ Older changes are here: https://www.pylucid.org/de/blog/tag/backward-incompatibl
 
 == Release History
 
-* [[https://github.com/jedie/PyLucid/compare/v3.1.5...master|compare v3.1.5...master]] - **dev**
+* [[https://github.com/jedie/PyLucid/compare/v3.2.0...master|compare v3.2.0...master]] - **dev**
 ** TBC
+* [[https://github.com/jedie/PyLucid/compare/v3.1.5...v3.2.0|16.02.2020 - v3.2.0]]:
+** Update to Django v2.2.10 and Django-CMS v3.7.1
+** Use https://github.com/pawelmarkowski/cmsplugin-filer fork
 * [[https://github.com/jedie/PyLucid/compare/v3.1.4...v3.1.5|03.10.2019 - v3.1.5]]:
 ** Update requirements
 * [[https://github.com/jedie/PyLucid/compare/v3.1.3...v3.1.4|11.06.2019 - v3.1.4]]:
@@ -240,7 +252,7 @@ Older changes are here: https://www.pylucid.org/de/blog/tag/backward-incompatibl
 ** Bugfix: include missing pylucid installer in PyPi package
 * [[https://github.com/jedie/PyLucid/compare/v3.1.2...v3.1.3|19.09.2018 - v3.1.3]]:
 ** Update requirements, e.g.: django==1.11.15, djangocms-blog==0.9.5
-** Bugfix 'run_test_project_dev_server' 
+** Bugfix 'run_test_project_dev_server'
 ** setup warnings
 ** updates for new bootstrap_env API
 * [[https://github.com/jedie/PyLucid/compare/v3.1.1...v3.1.2|03.04.2018 - v3.1.2]]:

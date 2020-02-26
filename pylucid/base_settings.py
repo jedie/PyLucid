@@ -58,9 +58,11 @@ INSTALLED_APPS = (
     'sekizai', # https://github.com/ojii/django-sekizai
     'djangocms_text_ckeditor', # https://github.com/divio/djangocms-text-ckeditor
 
-    # TODO: remove if migration from 'cmsplugin_filer_link' to 'djangocms-link' is done:
+    # TODO: migrate from 'cmsplugin_filer_*' to 'djangocms-*':
     # http://docs.django-cms.org/en/latest/topics/commonly_used_plugins.html#deprecated-addons
+    # use fork: https://github.com/pawelmarkowski/cmsplugin-filer
     'cmsplugin_filer_link',
+    'cmsplugin_filer_image',
 
     'cmsplugin_pygments', # https://github.com/chrisglass/cmsplugin-pygments
     'cmsplugin_markup', # https://github.com/mitar/cmsplugin-markup
@@ -71,7 +73,6 @@ INSTALLED_APPS = (
     'filer', # https://github.com/divio/django-filer
     'easy_thumbnails', # https://github.com/SmileyChris/easy-thumbnails
     'aldryn_apphooks_config',
-    'cmsplugin_filer_image',
     'parler', # https://pypi.org/project/django-parler
     'taggit',
     'taggit_autosuggest',
@@ -110,7 +111,6 @@ MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',

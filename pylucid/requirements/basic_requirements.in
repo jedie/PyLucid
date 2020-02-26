@@ -32,7 +32,7 @@ Pygments
 # http://www.djangoproject.com/
 # https://pypi.org/project/Django
 # Note: Version must also updated in pylucid.pylucid_admin.VERSION_PREFIXES !
-Django<2.0
+Django>=2.2,<2.3
 
 # https://github.com/django-debug-toolbar/django-debug-toolbar
 django-debug-toolbar
@@ -54,7 +54,7 @@ django-compressor
 # https://pypi.org/project/django-cms/
 # http://docs.django-cms.org/en/latest/upgrade/
 # Note: Version must also updated in pylucid.pylucid_admin.VERSION_PREFIXES !
-django-cms<3.5
+django-cms>=3.7,<3.8
 
 # https://pypi.org/project/djangocms-text-ckeditor/
 # https://github.com/divio/djangocms-text-ckeditor
@@ -80,7 +80,8 @@ django-filer
 # see also:
 # https://github.com/nephila/djangocms-blog/issues/431
 # https://github.com/divio/django-cms/issues/6198#issuecomment-352729551
-cmsplugin-filer
+# https://github.com/pawelmarkowski/cmsplugin-filer
+-e git+https://github.com/pawelmarkowski/cmsplugin-filer@2.0.2#egg=cmsplugin-filer
 
 
 # Django-CMS-Blog
@@ -89,3 +90,12 @@ cmsplugin-filer
 # https://pypi.org/project/djangocms-blog
 #-e git+https://github.com/jedie/djangocms-blog.git#egg=djangocms-blog
 djangocms-blog
+
+# PyLucid own projects
+#----------------------
+
+# https://pypi.org/project/python-creole
+python-creole
+
+# https://pypi.org/project/django-tools
+django-tools
