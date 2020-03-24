@@ -10,45 +10,45 @@
 aldryn-apphooks-config==0.5.3  # via djangocms-blog
 arrow==0.15.5             # via jinja2-time
 binaryornot==0.4.4        # via cookiecutter
-bleach==3.1.1             # via django-tools
-bootstrap-env==1.0.2      # via -r normal_installation.in (line 17)
+bleach==3.1.2             # via django-tools
+bootstrap-env==1.0.2      # via -r normal_installation.in
 certifi==2019.11.28       # via requests
 chardet==3.0.4            # via binaryornot, requests
 click==7.0                # via cookiecutter
-cmsplugin-pygments==0.8.3  # via -r normal_installation.in (line 32)
+cmsplugin-pygments==0.8.3  # via -r normal_installation.in
 cookiecutter==1.7.0       # via bootstrap-env
 django-appconf==1.0.3     # via cmsplugin-filer, django-compressor
 django-appdata==0.2.2     # via aldryn-apphooks-config
 django-classy-tags==1.0.0  # via django-cms, django-sekizai
-django-cms-tools==0.7.1   # via -r normal_installation.in (line 23)
-django-cms==3.7.1         # via -r basic_requirements.in (line 57), aldryn-apphooks-config, cmsplugin-filer, cmsplugin-markup, django-cms-tools, djangocms-apphook-setup, djangocms-attributes-field, djangocms-blog, djangocms-history, djangocms-htmlsitemap, djangocms-text-ckeditor
-django-compressor==2.4    # via -r basic_requirements.in (line 42)
-django-debug-toolbar-django-info==0.3.0  # via -r normal_installation.in (line 35)
-django-debug-toolbar==2.2  # via -r basic_requirements.in (line 38), django-debug-toolbar-django-info
-django-filer==1.7.0       # via -r basic_requirements.in (line 76), cmsplugin-filer, djangocms-blog
+django-cms-tools==0.7.1   # via -r normal_installation.in
+django-cms==3.7.1         # via -r basic_requirements.in, aldryn-apphooks-config, cmsplugin-filer, cmsplugin-markup, django-cms-tools, djangocms-apphook-setup, djangocms-attributes-field, djangocms-blog, djangocms-history, djangocms-htmlsitemap, djangocms-text-ckeditor
+django-compressor==2.4    # via -r basic_requirements.in
+django-debug-toolbar-django-info==0.3.0  # via -r normal_installation.in
+django-debug-toolbar==2.2  # via -r basic_requirements.in, django-debug-toolbar-django-info
+django-filer==1.7.0       # via -r basic_requirements.in, cmsplugin-filer, djangocms-blog
 django-formtools==2.2     # via django-cms
 django-js-asset==1.2.2    # via django-mptt
 django-meta==1.6.1        # via djangocms-blog
 django-mptt==0.11.0       # via django-filer
 django-parler==2.0.1      # via djangocms-blog
 django-polymorphic==2.1.2  # via django-filer
-django-processinfo==0.9.0  # via -r normal_installation.in (line 26)
+django-processinfo==0.9.0  # via -r normal_installation.in
 django-sekizai==1.1.0     # via cmsplugin-filer, django-cms
 django-sortedm2m==3.0.0   # via djangocms-blog
 django-taggit-autosuggest==0.3.8  # via djangocms-blog
 django-taggit-templatetags==0.2.5  # via djangocms-blog
 django-taggit==1.1.0      # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
-django-tools==0.46.1      # via -r basic_requirements.in (line 101), django-cms-tools
+django-tools==0.46.1      # via -r basic_requirements.in, django-cms-tools
 django-treebeard==4.3.1   # via django-cms
-django==2.2.10            # via -r basic_requirements.in (line 35), cmsplugin-filer, cmsplugin-markup, django-appconf, django-appdata, django-classy-tags, django-cms, django-cms-tools, django-debug-toolbar, django-filer, django-formtools, django-mptt, django-polymorphic, django-processinfo, django-sekizai, django-taggit, django-taggit-templatetags, django-tools, django-treebeard, djangocms-htmlsitemap, easy-thumbnails
+django==2.2.10            # via -r basic_requirements.in, cmsplugin-filer, cmsplugin-markup, django-appconf, django-appdata, django-classy-tags, django-cms, django-cms-tools, django-debug-toolbar, django-filer, django-formtools, django-mptt, django-polymorphic, django-processinfo, django-sekizai, django-taggit, django-taggit-templatetags, django-tools, django-treebeard, djangocms-htmlsitemap, easy-thumbnails
 djangocms-admin-style==1.5.0  # via django-cms
 djangocms-apphook-setup==0.4.1  # via djangocms-blog
 djangocms-attributes-field==1.2.0  # via cmsplugin-filer
-djangocms-blog==1.0.0     # via -r basic_requirements.in (line 92)
-djangocms-history==1.1.0  # via -r basic_requirements.in (line 70)
-djangocms-htmlsitemap==0.6.0  # via -r basic_requirements.in (line 65)
-djangocms-text-ckeditor==3.9.0  # via -r basic_requirements.in (line 61), djangocms-blog
+djangocms-blog==1.0.0     # via -r basic_requirements.in
+djangocms-history==1.1.0  # via -r basic_requirements.in
+djangocms-htmlsitemap==0.6.0  # via -r basic_requirements.in
+djangocms-text-ckeditor==3.9.0  # via -r basic_requirements.in, djangocms-blog
 docutils==0.16            # via cmsplugin-markup, python-creole
 easy-thumbnails==2.6      # via cmsplugin-filer, django-filer, djangocms-blog
 future==0.18.2            # via cookiecutter
@@ -61,12 +61,12 @@ lxml==4.5.0               # via djangocms-blog
 markdown==3.2.1           # via cmsplugin-markup
 markupsafe==1.1.1         # via jinja2
 packaging==20.1           # via bootstrap-env
-pillow==7.0.0             # via -r basic_requirements.in (line 11), djangocms-text-ckeditor, easy-thumbnails
+pillow==7.0.0             # via -r basic_requirements.in, djangocms-text-ckeditor, easy-thumbnails
 poyo==0.5.0               # via cookiecutter
 pprintpp==0.4.0           # via django-tools
-pygments==2.5.2           # via -r basic_requirements.in (line 15), cmsplugin-pygments
+pygments==2.5.2           # via -r basic_requirements.in, cmsplugin-pygments
 pyparsing==2.4.6          # via packaging
-python-creole==1.4.6      # via -r basic_requirements.in (line 98), cmsplugin-markup
+python-creole==1.4.6      # via -r basic_requirements.in, cmsplugin-markup
 python-dateutil==2.8.1    # via arrow
 pytz==2019.3              # via django, djangocms-blog
 rcssmin==1.0.6            # via django-compressor
