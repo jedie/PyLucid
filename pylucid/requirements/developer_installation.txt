@@ -47,7 +47,7 @@ django-taggit==1.1.0      # via django-taggit-autosuggest, django-taggit-templat
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
 django-tools==0.46.1      # via -r basic_requirements.in, django-cms-tools
 django-treebeard==4.3.1   # via django-cms
-django==2.2.10            # via -r basic_requirements.in, cmsplugin-filer, cmsplugin-markup, django-appconf, django-appdata, django-classy-tags, django-cms, django-cms-tools, django-debug-toolbar, django-filer, django-formtools, django-mptt, django-polymorphic, django-processinfo, django-sekizai, django-taggit, django-taggit-templatetags, django-tools, django-treebeard, djangocms-htmlsitemap, easy-thumbnails
+django==2.2.13            # via -r basic_requirements.in, cmsplugin-filer, cmsplugin-markup, django-appconf, django-appdata, django-classy-tags, django-cms, django-cms-tools, django-debug-toolbar, django-filer, django-formtools, django-mptt, django-polymorphic, django-processinfo, django-sekizai, django-taggit, django-taggit-templatetags, django-tools, django-treebeard, djangocms-htmlsitemap, easy-thumbnails
 djangocms-admin-style==1.5.0  # via django-cms
 djangocms-apphook-setup==0.4.1  # via djangocms-blog
 djangocms-attributes-field==1.2.0  # via cmsplugin-filer
