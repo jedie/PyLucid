@@ -10,7 +10,7 @@
 aldryn-apphooks-config==0.5.3  # via djangocms-blog
 arrow==0.15.5             # via jinja2-time
 binaryornot==0.4.4        # via cookiecutter
-bleach==3.1.1             # via django-tools
+bleach==3.1.4             # via django-tools
 bootstrap-env==1.0.2      # via -r normal_installation.in
 certifi==2019.11.28       # via requests
 chardet==3.0.4            # via binaryornot, requests
@@ -41,7 +41,7 @@ django-taggit==1.1.0      # via django-taggit-autosuggest, django-taggit-templat
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
 django-tools==0.46.1      # via -r basic_requirements.in, django-cms-tools
 django-treebeard==4.3.1   # via django-cms
-django==2.2.13            # via -r basic_requirements.in, cmsplugin-filer, cmsplugin-markup, django-appconf, django-appdata, django-classy-tags, django-cms, django-cms-tools, django-debug-toolbar, django-filer, django-formtools, django-mptt, django-polymorphic, django-processinfo, django-sekizai, django-taggit, django-taggit-templatetags, django-tools, django-treebeard, djangocms-htmlsitemap, easy-thumbnails
+django==2.2.13            # via -r basic_requirements.in, cmsplugin-filer, cmsplugin-markup, django-appconf, django-appdata, django-classy-tags, django-cms, django-cms-tools, django-debug-toolbar, django-filer, django-formtools, django-mptt, django-polymorphic, django-processinfo, django-sekizai, django-taggit, django-taggit-templatetags, django-tools, django-treebeard, djangocms-htmlsitemap, easy-thumbnailsmaster
 djangocms-admin-style==1.5.0  # via django-cms
 djangocms-apphook-setup==0.4.1  # via djangocms-blog
 djangocms-attributes-field==1.2.0  # via cmsplugin-filer
