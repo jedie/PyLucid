@@ -81,7 +81,7 @@ django-filer
 # https://github.com/nephila/djangocms-blog/issues/431
 # https://github.com/divio/django-cms/issues/6198#issuecomment-352729551
 # https://github.com/pawelmarkowski/cmsplugin-filer
--e git+https://github.com/pawelmarkowski/cmsplugin-filer@2.0.2#egg=cmsplugin-filer
+#-e git+https://github.com/pawelmarkowski/cmsplugin-filer@2.0.2#egg=cmsplugin-filer
 
 
 # Django-CMS-Blog
