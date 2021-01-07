@@ -65,7 +65,7 @@ jeepney==0.4.3            # via keyring, secretstorage
 jinja2-time==0.2.0        # via cookiecutter
 jinja2==2.11.2            # via cookiecutter, jinja2-time
 keyring==21.4.0           # via twine
-lxml==4.6.1               # via djangocms-blog
+lxml==4.6.2               # via djangocms-blog
 markdown==3.3.3           # via cmsplugin-markup
 markupsafe==1.1.1         # via cookiecutter, jinja2
 packaging==20.4           # via bleach, bootstrap-env, pytest
