@@ -152,7 +152,7 @@ idna==2.10
     # via requests
 jinja2-time==0.2.0
     # via cookiecutter
-jinja2==2.11.2
+jinja2==2.11.3
     # via
     #   cookiecutter
     #   jinja2-time
