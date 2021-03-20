@@ -168,7 +168,7 @@ packaging==20.4
     # via
     #   bleach
     #   bootstrap-env
-pillow==8.0.1
+pillow==8.1.1
     # via
     #   -r basic_requirements.in
     #   djangocms-text-ckeditor
