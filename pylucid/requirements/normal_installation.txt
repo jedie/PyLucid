@@ -156,7 +156,7 @@ jinja2==2.11.2
     # via
     #   cookiecutter
     #   jinja2-time
-lxml==4.6.1
+lxml==4.6.2
     # via djangocms-blog
 markdown==3.3.3
     # via cmsplugin-markup
