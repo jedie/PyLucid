@@ -75,7 +75,7 @@ django-cms==3.7.4
     #   djangocms-text-ckeditor
 django-compressor==2.4
     # via -r basic_requirements.in
-django-debug-toolbar==3.1.1
+django-debug-toolbar==3.2.1
     # via
     #   -r basic_requirements.in
     #   django-debug-toolbar-django-info
