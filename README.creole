@@ -1,3 +1,7 @@
+= not maintained
+
+PyLucid is currently not under active development!
+
 = about PyLucid
 
 PyLucid is an Open Source web content management system written in Python using Django-CMS.
