@@ -52,7 +52,7 @@ coverage==5.3
     #   pytest-cov
 coveralls==2.1.2
     # via -r test_requirements.txt
-cryptography==3.2.1
+cryptography==3.3.2
     # via secretstorage
 django-appconf==1.0.4
     # via django-compressor
