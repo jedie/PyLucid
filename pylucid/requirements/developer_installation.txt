@@ -187,7 +187,7 @@ jinja2==2.11.3
     #   jinja2-time
 keyring==21.4.0
     # via twine
-lxml==4.6.2
+lxml==4.6.3
     # via djangocms-blog
 markdown==3.3.3
     # via cmsplugin-markup
